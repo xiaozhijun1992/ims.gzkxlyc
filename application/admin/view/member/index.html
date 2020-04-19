@@ -1,0 +1,111 @@
+{extend name="base" /}
+{block name="content"}
+<xblock>
+    <button class="layui-btn" onclick="x_admin_show('添加用户','{:url("admin/member/add")}',800,600)"><i class="layui-icon"></i>添加</button>
+</xblock>
+<div id="condition"></div>
+<table id="memberTable" lay-filter="memberTable"></table>
+<!-- 操作栏 -->
+<script type="text/html" id="barMemberTable">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<!--状态切换-->
+<script type="text/html" id="statusTpl">
+    <input type="checkbox" name="status" value="{{d.id}}" title="启用" lay-filter="status" {{ d.status == 1 ? 'checked' : '' }}>
+</script>
+
+<script>
+    layui.extend({selectC: '{/}/static/lib/plugin/select-c/selectC'});
+    layui.use(['table','form','layer','selectC'], function(){
+        let table = layui.table,
+            form = layui.form,
+            layer = layui.layer,
+            selectC = layui.selectC,
+            $ = layui.$;
+        table.render({
+            elem: '#memberTable',
+            cols: [[
+                {field: 'id', title: '用户ID',hide: true},
+                {field: 'user_id',title: '会员ID'},
+                {field: 'name',title: '姓名'},
+                {field: 'phone', title: '手机号'},
+                {field:'status', title:'状态', templet: '#statusTpl', unresize: true},
+                {fixed: 'right', title:'操作', toolbar: '#barMemberTable'}
+            ]],
+            id: 'memberTable',
+            url: '{:url("admin/member/get")}'
+        });
+
+        let condition  = selectC({
+            elem: "#condition",
+            number: 1,
+            options: [{ //select下拉选项
+                type: "input",//input
+                name: "name",//标签的name属性
+                elemName: "姓名"//名称
+            },{ //select下拉选项
+                type: "input",//input
+                name: "phone",//标签的name属性
+                elemName: "手机号"//名称
+            }],
+            search: function(data){
+                //执行重载表格
+                console.log(data);
+                table.reload('memberTable', {
+                    page: {
+                        curr: 1
+                    }
+                    ,where: data
+                });
+            }
+        });
+        //监听状态切换操作
+        form.on('checkbox(status)', function(obj){
+            $.ajax({
+                method: 'POST',
+                url: '{:url("admin/member/toggleStatus")}',
+                data: {"id": obj.value, "status": obj.elem.checked === true ? 1:0},
+                success: function(res){
+                    if(res.code === 1) {
+                        layer.alert(res.message);
+                    }else if( res.code =0 ){
+                        layer.tips(obj.elem.checked === true? '已禁用': '已启用', obj.othis);
+                    }
+                },
+                error: function(){
+                    layer.alert("网络连接失败");
+                }
+            })
+        });
+        //监听工具条
+        table.on('tool(memberTable)', function(obj){
+            let layEvent = obj.event;
+
+            if(layEvent === 'del'){ //删除
+                layer.confirm('真的删除么', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: obj.data,
+                        url: '{:url("admin/member/del")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+
+                });
+            }
+        });
+    });
+</script>
+{/block}

@@ -1,0 +1,101 @@
+{extend name="base" /}
+{block name="content"}
+<xblock>
+    <button class="layui-btn" onclick="x_admin_show('添加热搜','{:url("admin/hot_search/add")}',600,300)"><i class="layui-icon"></i>添加</button>
+</xblock>
+<table id="hotSearchTable" lay-filter="hotSearch"></table>
+<!-- 操作栏 -->
+<script type="text/html" id="barHotSearch">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<!--状态切换-->
+<script type="text/html" id="statusTpl">
+    <input type="checkbox" name="status" value="{{d.id}}" title="启用" lay-filter="status" {{ d.status == 1 ? 'checked' : '' }}>
+</script>
+
+<script>
+    layui.use('table', function(){
+        let table = layui.table,
+            form = layui.form,
+            layer = layui.layer,
+            $ = layui.$;
+        table.render({
+            elem: '#hotSearchTable',
+            cols: [[
+                {field: 'id', title: 'ID'},
+                {field: 'text',title: '内容'},
+                {field: 'sort', title: '排序',sort: true,edit: 'text'},
+                {field:'status', title:'是否启用', width:110, templet: '#statusTpl', unresize: true},
+                {fixed: 'right', title:'操作', toolbar: '#barHotSearch', width:150}
+            ]],
+            page: true,
+            url: '{:url("admin/hot_search/get")}'
+        });
+        //监听状态切换操作
+        form.on('checkbox(status)', function(obj){
+            $.ajax({
+                method: 'POST',
+                url: '{:url("admin/hot_search/toggleStatus")}',
+                data: {"id": obj.value, "status": obj.elem.checked === true ? 1:0},
+                success: function(res){
+                    if(res.code === 1) {
+                        layer.alert(res.message);
+                    }else if( res.code =0 ){
+                        layer.tips(obj.elem.checked === true? '已禁用': '已启用', obj.othis);
+                    }
+                },
+                error: function(){
+                    layer.alert("网络连接失败");
+                }
+            })
+        });
+        //监听工具条
+        table.on('tool(hotSearch)', function(obj){
+            let layEvent = obj.event;
+
+            if(layEvent === 'del'){ //删除
+                layer.confirm('真的删除么', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: obj.data,
+                        url: '{:url("admin/hot_search/del")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+
+                });
+            }
+        });
+
+        table.on('edit(hotSearch)', function(obj){
+            $.ajax({
+                type: 'POST',
+                data: {"id": obj.data.id, "sort": obj.value},
+                url: '{:url("admin/hot_search/changeSort")}',
+                success: function(res){
+                    if(res.code !== 0){
+                        layer.alert(res.message);
+                    }else {
+                        layer.alert(res.message);
+                    }
+                },
+                error: function(){
+                    layer.alert("请求修改失败！");
+                }
+            })
+        });
+    });
+</script>
+{/block}

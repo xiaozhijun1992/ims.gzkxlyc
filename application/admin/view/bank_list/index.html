@@ -1,0 +1,82 @@
+{extend name="base" /}
+{block name="content"}
+<xblock>
+    <button class="layui-btn" id="add"><i class="layui-icon"></i>添加</button>
+</xblock>
+<table id="bankListTable" lay-filter="bankListTable"></table>
+<!-- 操作栏 -->
+<script type="text/html" id="barBankList">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script>
+    layui.use('table', function(){
+        let table = layui.table,
+            layer = layui.layer,
+            $ = layui.$;
+        let bankListTableIns = table.render({
+            elem: '#bankListTable',
+            cols: [[
+                {field: 'id', title: 'ID'},
+                {field: 'name',title: '银行名称'},
+                {fixed: 'right', title:'操作', toolbar: '#barBankList', width:150}
+            ]],
+            page: true,
+            url: '{:url("admin/bank_list/get")}'
+        });
+
+        let add = "#add";
+        $(add).on("click",function(){
+            layer.prompt({title: '请输入银行名称，并确定', formType: 0}, function(name, index){
+                layer.close(index);
+                $.ajax({
+                    type: 'POST',
+                    data: {name: name},
+                    url: '{:url("admin/bank_list/add")}',
+                    success: function(res){
+                        if(res.code === 0) {
+                            bankListTableIns.reload();
+                        }else {
+                            layer.alert(res.message);
+                        }
+                    },
+                    error: function(){
+                        layer.alert("请求失败！");
+                    },
+                    complete: function(){
+                        layer.close(index);
+                    }
+                });
+            });
+        });
+        //监听工具条
+        table.on('tool(bankListTable)', function(obj){
+            let layEvent = obj.event;
+
+            if(layEvent === 'del'){ //删除
+                layer.confirm('真的删除么', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: {id: obj.data.id},
+                        url: '{:url("admin/bank_list/del")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                bankListTableIns.reload();
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+
+                });
+            }
+        });
+    });
+</script>
+{/block}

@@ -1,0 +1,32 @@
+{extend name="window" /}
+
+{block name="content"}
+<div style="width: 50%; margin: 0 auto;">
+    <div style="text-align: center;font-size: 20px">请选择要登录的店铺</div>
+    <table class="layui-table">
+        <thead>
+            <tr>
+                <th>店铺ID</th>
+                <th>店铺名称</th>
+                <th>加入时间</th>
+            </tr>
+        </thead>
+        <tbody>
+        {volist name="Think.session.stores" id="store"}
+            <tr onclick="select({$store.id})">
+                <td>{$store.id}</td>
+                <td>{$store.name}</td>
+                <td>{$store.create_time}</td>
+            </tr>
+        {/volist}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function select(id){
+        window.location.href = "{:url('store/index/selectStore')}?store_id="+id;
+    }
+</script>
+
+{/block}

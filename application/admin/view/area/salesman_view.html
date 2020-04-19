@@ -1,0 +1,68 @@
+{extend name="window" /}
+
+{block name="content"}
+<form class="layui-form">
+    <div class="layui-form-item">
+        <label for="user_id" class="layui-form-label"><span class="x-red">*</span>用户ID</label>
+        <div class="layui-input-inline">
+            <input type="text" id="user_id" name="user_id" required=""  autocomplete="off" class="layui-input" value="{$salesman.user_id}" disabled>
+        </div>
+        <label for="phone" class="layui-form-label"><span class="x-red">*</span>用户手机号</label>
+        <div class="layui-input-inline">
+            <input type="text" id="phone" name="phone" required="" autocomplete="off" class="layui-input" value="{$salesman.phone}" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="real_name" class="layui-form-label"><span class="x-red">*</span>真实姓名</label>
+        <div class="layui-input-inline">
+            <input type="text" id="real_name" name="name" required="" autocomplete="off" class="layui-input" value="{$salesman.name}" disabled>
+        </div>
+        <label for="sex" class="layui-form-label"><span class="x-red">*</span>性别</label>
+        <div class="layui-input-inline">
+            <select id="sex" name="sex" class="layui-select" disabled>
+                <option></option>
+                <option value="0" {if ($salesman.sex == "男")}selected{/if}>男</option>
+                <option value="1" {if ($salesman.sex == "女")}selected{/if}>女</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="id_no" class="layui-form-label">
+            <span class="x-red">*</span>身份证号
+        </label>
+        <div class="layui-input-inline">
+            <input type="text" id="id_no" name="id_no" required="" autocomplete="off" class="layui-input" value="{$salesman.id_no}" disabled>
+        </div>
+        <label for="address" class="layui-form-label">
+            <span class="x-red">*</span>联系地址
+        </label>
+        <div class="layui-input-inline">
+            <input type="text" id="address" name="address" required="" autocomplete="off" class="layui-input" value="{$salesman.address}" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="x-red">*</span>协议书</label>
+        <div class="layui-input-inline">
+            <img src="/{$salesman.agreement}" width="100%">
+        </div>
+        <label class="layui-form-label"><span class="x-red">*</span>身份证照片</label>
+        <div class="layui-input-inline">
+            <img src="/{$salesman.id_photo}" width="100%">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="L_add" class="layui-form-label">
+        </label>
+        <button id="L_add" class="layui-btn" lay-filter="add" lay-submit="">
+            增加
+        </button>
+    </div>
+</form>
+<script>
+    layui.use(['form'], function(){
+        let form = layui.form;
+
+
+    });
+</script>
+{/block}

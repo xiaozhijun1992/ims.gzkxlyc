@@ -1,0 +1,116 @@
+<?php /*a:1:{s:71:"C:\xampp\htdocs\ims.gzkxly.com\application\home\view\users\address.html";i:1584968927;}*/ ?>
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, height=device-height,user-scalable=no, initial-scale=1.0" />
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="/static/css/weweb.min.css" /> <link rel="stylesheet" type="text/css" href="/static/css/app.css" /> <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script> <script type="text/javascript" src="/static/lib/layui/layui.js"></script> <link rel="stylesheet" type="text/css" href="/static/lib/layui/css/layui.css" /> <script type="text/javascript" src="/static/js/render.js"></script>
+	</head>
+	<style type="text/css">
+		form input{
+			cursor: auto;
+		    height: 1.4rem;
+		    text-overflow: clip;
+		    overflow: hidden;
+		    white-space: nowrap;
+		    font-family: UICTFontTextStyleBody;
+		    min-height: 1.4rem;
+		    border: none;
+		}
+		.cu-btns{
+			position: relative;
+		    border: 0.5px;
+		    display: -webkit-inline-box;
+		    display: -webkit-inline-flex;
+		    display: -ms-inline-flexbox;
+		    display: inline-flex;
+		    -webkit-box-align: center;
+		    -webkit-align-items: center;
+		    -ms-flex-align: center;
+		    align-items: center;
+		    -webkit-box-pack: center;
+		    -webkit-justify-content: center;
+		    -ms-flex-pack: center;
+		    justify-content: center;
+		    -webkit-box-sizing: border-box;
+		    box-sizing: border-box;
+		    padding: 0 12px;
+		    font-size: 11px;
+		    height: 27px;
+		    line-height: 1;
+		    text-align: center;
+		    text-decoration: none;
+		    overflow: visible;
+		    margin-left: initial;
+		    -webkit-transform: translate(0.5px,0.5px);
+		    -ms-transform: translate(0.5px,0.5px);
+		    transform: translate(0.5px,0.5px);
+		    margin-right: initial;
+		}
+	</style>
+	<body>
+	
+		<body>
+			<div class="scrollable">
+				<div id="storeshtml">
+
+					<view>
+						<div class="head">
+							<div class="jshook-ws-head" style="display: flex; background-color: #fa922f;color: #fff;">
+								<div class="head-back jshook-ws-head-back" style="display: none;">
+
+								</div>
+								<div class="head-home jshook-ws-head-home" onclick="onclickset()" style="display: flex;font-size: 14px;">
+									<div class="cuIcon-back cuIcon-back">
+
+									</div>返回
+								</div>
+								<h3 class="head-title jshook-ws-head-title" style="color: black;">
+    <i class="head-title-loading" style="display: none;"></i>
+    <span style="color: #fff;font-size: 16px;width: 100%;font-weight: 100;">收货地址</span>
+  </h3>
+								<div class="head-option jshook-ws-head-option"></div>
+							</div>
+						</div>
+					</view>
+		<div id="addresss">
+						
+		</div>
+		<view class="cu-tabbar-height"></view>
+  		<view class="bg-red text-center cu-bar foot add_addresss" bindtap="__e">
+    		<view class="w-100 text-center">新增收货地址</view>
+ 		</view>
+	</body>
+</html>
+<script type="text/javascript">
+	window.onload=function(){
+		parent.$('#loads').hide();
+	}
+	function onclickset(){
+		parent.onclickset();
+	}
+	var add_htmlc;
+	addressset();
+	function addressset(){
+		$.get('/api/receive_address',{user_id:parent.user_id},function(res){
+			
+			if(res.data){
+				for (var i=0;i<res.data.length;i++) {
+					var add_html='<view class="flex padding-sm margin-top-sm justify-between bg-white"><view class="flex flex-direction flex-sub"><view class="margin-bottom-sm">'+res.data[i].name+' '+res.data[i].phone+'</view><view class="text-gray text-justify text-cut-2">'+res.data[i].province+res.data[i].city+res.data[i].county+res.data[i].detail_address+'</view></view><view onclick="bianji('+res.data[i].id+')" class="flex justify-center align-center text-red" style="width:50px;" bindtap="__e"><view>编辑</view></view></view>	'
+					if(!add_htmlc){
+						add_htmlc=add_html;
+					}else{
+						add_htmlc+=add_html;
+					}
+				}
+				console.log(res.data);
+				$('#addresss').append(add_htmlc);
+			}
+		})
+	}
+	$('.add_addresss').on('click',function(){
+		parent.arr_id[0]=parent.getChildren().length;
+		parent.onclicksetjia('/home/users/newaddress','id=');
+	})
+</script>

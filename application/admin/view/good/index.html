@@ -1,0 +1,223 @@
+{extend name="base" /}
+{block name="content"}
+<table id="goodTable" lay-filter="goodTable"></table>
+<!-- 操作栏 -->
+<script type="text/html" id="barGood">
+    {{#  if(d.status == '已上架'){ }}
+    <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="pullOff">下架</a>
+    {{#  } }}
+    {{#  if(d.status == '审核中'){ }}
+    <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="check">审核</a>
+    {{#  } }}
+    {{#  if(d.recommend == '1'){ }}
+    <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="unrecommend">取消推荐</a>
+    {{#  } }}
+    {{#  if(d.recommend == '0' && d.status == '已上架'){ }}
+    <a class="layui-btn layui-btn-xs" lay-event="recommend">首页推荐</a>
+    {{#  } }}
+    <a class="layui-btn layui-btn-xs" lay-event="view">查看</a>
+</script>
+
+<!--状态-->
+<script type="text/html" id="statusTpl">
+    {{#  if(d.status === '审核中'){ }}
+    <span class="layui-badge layui-bg-green">{{d.status }}</span>
+    {{#  } }}
+    {{#  if(d.status === '已上架'){ }}
+    <span class="layui-badge layui-bg-blue">{{d.status }}</span>
+    {{#  } }}
+    {{#  if(d.status === '已下架'){ }}
+    <span class="layui-badge">{{d.status }}</span>
+    {{#  } }}
+    {{#  if(d.status === '审核未通过'){ }}
+    <span class="layui-badge layui-bg-gray">{{d.status }}</span>
+    {{#  } }}
+</script>
+
+<script type="text/html" id="typeTpl">
+    {{#  if(d.order_type === 0){ }}
+    <span class="layui-badge layui-bg-green">线上发货</span>
+    {{#  } }}
+    {{#  if(d.order_type === 1){ }}
+    <span class="layui-badge layui-bg-blue">线下核销</span>
+    {{#  } }}
+</script>
+
+<script>
+    layui.extend({tableFilter: '{/}/static/lib/plugin/table-filter/tableFilter'});
+    layui.use(['table','tableFilter'], function(){
+        let table = layui.table,
+            form = layui.form,
+            layer = layui.layer,
+            tableFilter = layui.tableFilter,
+            $ = layui.$;
+        let goodTableIns = table.render({
+            elem: '#goodTable',
+            cols: [[
+                {field: 'id', title: "商品ID",width: 80},
+                {field: 'store', title: "店铺名称",templet: '<div>{{d.store.name}}</div>',align: 'center',width: 200},
+                {field: 'store_id', title: "店铺ID",align: 'center',width: 120},
+                {field: 'order', title: '排序',align: 'center',width: 80},
+                {field: 'name', title: '商品名称',align: 'center',width: 240},
+                {field: 'marketprice', title: '价格',align: 'center',width: 80},
+                {field: 'total', title: '库存',align: 'center',width: 80},
+                {field: 'sales', title: '销量',align: 'center',width: 80},
+                {field: 'unit', title: '单位',align: 'center',width: 80},
+                {field: 'order_type', title: '类型', templet: '#typeTpl',align: 'center',width: 120},
+                {field:'status', title:'状态', templet: '#statusTpl', unresize: true,align: 'center',width: 120},
+                {field: 'recommend', title: '是否推荐', templet: function(d){
+                        if(d.recommend === 1){
+                            return "是";
+                        }else {
+                            return "否";
+                        }
+                    },width: 120,align: "center"},
+                {fixed: 'right', title:'操作', toolbar: '#barGood',width: 220}
+            ]],
+            page: true,
+            url: '{:url("admin/good/get")}',
+            done: function(){
+                //非常重要！如果使table.reload()后依然使用过滤，就必须将过滤组件也reload()一下
+
+                tableFilterIns.reload()
+            }
+        });
+
+        let tableFilterIns = tableFilter.render({
+            'elem' : '#goodTable',//table的选择器
+            'mode' : 'api',//过滤模式
+            'filters' : [
+                {field: 'name',type: 'input'},
+                {field: 'store_id',type: 'input'},
+                {field: 'recommend',type: 'radio',data: [{ "key":"0", "value":"否"},{ "key":"1", "value":"是"}]},
+                {field: 'order_type',type: 'radio',data: [{ "key":"0", "value":"线上发货"},{ "key":"1", "value":"线下核销"}]},
+                {field: 'status',type: 'radio',data: [{ "key":"0", "value":"审核中"},{ "key":"1", "value":"已上架"},{ "key":"2", "value":"已下架"},{ "key":"3", "value":"审核未通过"}]},
+            ],//过滤项配置
+            'done': function(filters){
+                console.log(filters)
+            }
+        });
+        //监听工具条
+        table.on('tool(goodTable)', function(obj){
+            let layEvent = obj.event;
+            if(layEvent === 'pullOff'){ //删除
+                layer.confirm('确定要下架该商品吗？', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: {id: obj.data.id},
+                        url: '{:url("admin/good/pullOff")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                table.reload('goodTable')
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+
+                });
+            }else if(layEvent === 'check'){ //审核
+                layer.msg('商品审核操作', {
+                    time: 0 //不自动关闭
+                    ,btn: ['审核通过', '不通过']
+                    ,yes: function(index){
+                        layer.close(index);
+                        $.ajax({
+                            type: 'POST',
+                            data: {id: obj.data.id},
+                            url: '{:url("admin/good/checkOn")}',
+                            success: function (res) {
+                                layer.alert(res.message,function(index){
+                                    layer.close(index);
+                                    if(res.code === 0) {
+                                        table.reload('goodTable')
+                                    }
+                                });
+
+                            },
+                            error: function(){
+                                layer.alert("请求失败！");
+                            }
+                        });
+                    }
+                    ,btn2: function(index){
+                        layer.close(index);
+                        layer.prompt({title: '不通过的原因', formType: 2}, function(text, index){
+                            layer.close(index);
+                            $.ajax({
+                                type: 'POST',
+                                data: {id: obj.data.id,remark: text},
+                                url: '{:url("admin/good/checkOff")}',
+                                success: function (res) {
+                                    layer.alert(res.message,function(index){
+                                        layer.close(index);
+                                        if(res.code === 0) {
+                                            table.reload('goodTable')
+                                        }
+                                    });
+                                },
+                                error: function(){
+                                    layer.alert("请求失败！");
+                                }
+                            });
+                        });
+                    }
+                });
+
+            }else if(layEvent === 'view'){
+                x_admin_show('商品详情','{:url("admin/good/detail")}?id='+obj.data.id);
+            }else if(layEvent === 'recommend'){ //首页推荐
+                layer.confirm('确定要将该商品推荐到首页吗？', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: {id: obj.data.id},
+                        url: '{:url("admin/good/recommend")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                table.reload('goodTable')
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+
+                });
+            }else if(layEvent === 'unrecommend'){ //取消首页推荐
+                layer.confirm('确定要取消该商品首页推荐吗？', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: {id: obj.data.id},
+                        url: '{:url("admin/good/unrecommend")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                table.reload('goodTable')
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+
+                });
+            }
+        });
+    });
+</script>
+{/block}

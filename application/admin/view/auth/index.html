@@ -1,0 +1,249 @@
+{extend name="base" /}
+{block name="content"}
+
+<div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+    <ul class="layui-tab-title">
+        <li class="layui-this">权限规则</li>
+        <li>权限组</li>
+        <li>用户权限组</li>
+    </ul>
+    <div class="layui-tab-content">
+        <!--权限规则管理-->
+        <div class="layui-tab-item layui-show">
+            <xblock>
+                <button class="layui-btn" onclick="x_admin_show('添加权限规则','{:url("admin/auth/addAuthRule")}',500,400)"><i class="layui-icon"></i>添加</button>
+            </xblock>
+            <table id="authRuleTable" lay-filter="authRuleTable"></table>
+        </div>
+        <!--权限组管理-->
+        <div class="layui-tab-item">
+            <xblock>
+                <button class="layui-btn" onclick="x_admin_show('添加权限组','{:url("admin/auth/addGroup")}',800,600)"><i class="layui-icon"></i>添加</button>
+            </xblock>
+            <table id="authGroupTable" lay-filter="authGroupTable"></table>
+        </div>
+        <!--用户权限管理-->
+        <div class="layui-tab-item">
+            <xblock>
+                <button class="layui-btn" onclick="x_admin_show('添加用户权限组','{:url("admin/auth/addAuthGroupAccess")}',800,400)"><i class="layui-icon"></i>添加</button>
+            </xblock>
+            <table id="authGroupAccessTable" lay-filter="authGroupAccessTable"></table>
+        </div>
+    </div>
+</div>
+
+
+<!--规则操作栏和状态栏开始-->
+<!-- 操作栏 -->
+<script type="text/html" id="ruleBar">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<!--状态-->
+<script type="text/html" id="ruleStatus">
+    <input type="checkbox" name="status" value="{{d.id}}" title="启用" lay-filter="ruleStatus" {{ d.status == 1 ? 'checked' : '' }}>
+</script>
+<!--规则操作栏和状态栏结束-->
+
+<!--权限组操作栏和状态栏开始-->
+<!-- 操作栏 -->
+<script type="text/html" id="groupBar">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<!--状态-->
+<script type="text/html" id="groupStatus">
+    <input type="checkbox" name="status" value="{{d.id}}" title="启用" lay-filter="groupStatus" {{ d.status == 1 ? 'checked' : '' }}>
+</script>
+<!--权限组组操作栏和状态栏结束-->
+
+<!--用户权限操作栏开始-->
+<!-- 操作栏 -->
+<script type="text/html" id="accessBar">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<!--用户权限操作栏结束-->
+
+<script>
+    layui.use('table', function(){
+        let table = layui.table,
+            form = layui.form,
+            layer = layui.layer,
+            $ = layui.$;
+
+        //渲染权限规则表
+        table.render({
+            elem: '#authRuleTable',
+            cols: [[
+                {field: 'id', title: 'ID'},
+                {field: 'name',title: '规则标识'},
+                {field: 'title', title: '规则名称'},
+                {field: 'condition', title: '规则表达式'},
+                {field:'status', title:'是否启用', width:110, templet: '#ruleStatus', unresize: true},
+                {fixed: 'right', title:'操作', toolbar: '#ruleBar', width:130}
+            ]],
+            id: 'authRuleTable',
+            url: '{:url("admin/auth/getAuthRule")}'
+        });
+
+        //渲染权限组表
+        table.render({
+            elem: '#authGroupTable',
+            cols: [[
+                {field: 'id', title: "ID"},
+                {field: 'title',title: '权限组名称'},
+                {field: 'rules',title: '权限规则ID'},
+                {field:'status', title:'是否启用', width:110, templet: '#groupStatus', unresize: true},
+                {title:'操作', toolbar: '#groupBar',fixed: 'right',width: 135}
+            ]],
+            id: "authGroupTable",
+            url: '{:url("admin/auth/getAuthGroup")}'
+        });
+
+        //渲染用户-权限组关系表
+        table.render({
+            elem: '#authGroupAccessTable',
+            cols: [[
+                {field: 'uid', title: "用户ID"},
+                {field: 'member', title: "姓名",templet: '<div>{{d.member.name}}</div>'},
+                {field: 'member', title: "手机号",templet: '<div>{{d.member.phone}}</div>'},
+                {field: 'group_id',title: '权限组ID'},
+                {field: 'authGroup', title: "权限组名称",templet: '<div>{{d.authGroup.title}}</div>'},
+                {title:'操作', toolbar: '#accessBar',fixed: 'right',width: 135}
+            ]],
+            id: 'authGroupAccessTable',
+            url: '{:url("admin/auth/getAuthGroupAccess")}'
+        });
+
+        // 权限规则状态切换
+        form.on('checkbox(ruleStatus)', function(obj){
+            $.ajax({
+                method: 'POST',
+                url: '{:url("admin/auth/toggleRuleStatus")}',
+                data: {"id": obj.value, "status": obj.elem.checked === true ? 1:0},
+                success: function(res){
+                    if(res.code === 1) {
+                        layer.alert(res.message);
+                    }else if( res.code === 0 ){
+                        layer.tips(obj.elem.checked === true? '已启用': '已禁用', obj.othis[0]);
+                    }
+                },
+                error: function(){
+                    layer.alert("网络连接失败");
+                }
+            })
+        });
+
+        // 权限规则状态切换
+        form.on('checkbox(groupStatus)', function(obj){
+            $.ajax({
+                method: 'POST',
+                url: '{:url("admin/auth/toggleGroupStatus")}',
+                data: {"id": obj.value, "status": obj.elem.checked === true ? 1:0},
+                success: function(res){
+                    if(res.code === 1) {
+                        layer.alert(res.message);
+                    }else if( res.code === 0 ){
+                        layer.tips(obj.elem.checked === true? '已启用': '已禁用', obj.othis[0]);
+                    }
+                },
+                error: function(){
+                    layer.alert("网络连接失败");
+                }
+            })
+        });
+
+
+        table.on('tool(authRuleTable)', function(obj){
+            let layEvent = obj.event;
+
+            if(layEvent === 'del'){ //删除
+                layer.confirm('真的删除么？', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: obj.data,
+                        url: '{:url("admin/auth/ruleDelete")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+
+                });
+            }else if(layEvent === 'edit'){ //删除
+                x_admin_show("修改权限规则","{:url('admin/auth/editRule')}?id=" + obj.data.id,800,400);
+            }
+        });
+
+        table.on('tool(authGroupTable)', function(obj){
+            let layEvent = obj.event;
+
+            if(layEvent === 'del'){ //删除
+                layer.confirm('真的删除么？', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: obj.data,
+                        url: '{:url("admin/auth/groupDelete")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+
+                });
+            }else if(layEvent === 'edit'){ //删除
+                x_admin_show("修改权限组","{:url('admin/auth/editGroup')}?id=" + obj.data.id,800,400);
+            }
+        });
+
+        table.on('tool(authGroupAccessTable)', function(obj){
+            let layEvent = obj.event;
+
+            if(layEvent === 'del'){ //删除
+                layer.confirm('真的删除么？', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: obj.data,
+                        url: '{:url("admin/auth/accessDelete")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+
+                });
+            }else if(layEvent === 'edit'){ //删除
+                x_admin_show("修改用户权限","{:url('admin/auth/editAccess')}?id=" + obj.data.id,800,400);
+            }
+        });
+    });
+</script>
+{/block}

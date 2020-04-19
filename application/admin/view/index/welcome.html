@@ -1,0 +1,84 @@
+{extend name="base" /}
+{block name="content"}
+<blockquote class="layui-elem-quote">
+    欢迎您，<span class="x-red">{$Think.session.admin_info.name}</span>
+</blockquote>
+<fieldset class="layui-elem-field">
+    <legend>数据统计</legend>
+    <div class="layui-field-box">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body">
+                    <div class="layui-carousel x-admin-carousel x-admin-backlog" lay-anim="" lay-indicator="inside" lay-arrow="none" style="width: 100%; height: 90px;">
+                        <div carousel-item="">
+                            <ul class="layui-row layui-col-space10 layui-this">
+                                <li class="layui-col-xs2">
+                                    <a href="javascript:;" class="x-admin-backlog-body">
+                                        <h3>商户数</h3>
+                                        <p>
+                                            <cite>{$store_count}</cite></p>
+                                    </a>
+                                </li>
+                                <li class="layui-col-xs2">
+                                    <a href="javascript:;" class="x-admin-backlog-body">
+                                        <h3>会员数</h3>
+                                        <p>
+                                            <cite>{$user_count}</cite></p>
+                                    </a>
+                                </li>
+                                <li class="layui-col-xs2">
+                                    <a href="javascript:;" class="x-admin-backlog-body">
+                                        <h3>订单数</h3>
+                                        <p>
+                                            <cite>{$order_count}</cite></p>
+                                    </a>
+                                </li>
+                                <li class="layui-col-xs2">
+                                    <a href="javascript:;" class="x-admin-backlog-body">
+                                        <h3>商品分类</h3>
+                                        <p>
+                                            <cite>{$good_category}</cite></p>
+                                    </a>
+                                </li>
+                                <li class="layui-col-xs2">
+                                    <a href="javascript:;" class="x-admin-backlog-body">
+                                        <h3>推广人员</h3>
+                                        <p>
+                                            <cite>{$salesman_count}</cite></p>
+                                    </a>
+                                </li>
+                                <li class="layui-col-xs2">
+                                    <a href="javascript:;" class="x-admin-backlog-body">
+                                        <h3>行业数</h3>
+                                        <p>
+                                            <cite>{$industry_count}</cite></p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</fieldset>
+<fieldset class="layui-elem-field">
+    <legend>开发团队</legend>
+    <div class="layui-field-box">
+        <table class="layui-table">
+            <tbody>
+            <tr>
+                <th>版权所有</th>
+                <td>贵州同城共赢网络科技有限公司</td>
+            </tr>
+            <tr>
+                <th>开发者</th>
+                <td>Peter，Jon</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</fieldset>
+</div>
+
+{/block}

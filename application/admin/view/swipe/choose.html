@@ -1,0 +1,68 @@
+{extend name="window" /}
+{block name="content"}
+<div class="demoTable">
+    名称：
+    <div class="layui-inline">
+        <input class="layui-input" name="id" id="demoReload" autocomplete="off">
+    </div>
+    <button class="layui-btn" data-type="reload">搜索</button>
+</div>
+<table id="swiperTable" lay-filter="swiper"></table>
+<!-- 操作栏 -->
+<script type="text/html" id="barSwipe">
+    <a class="layui-btn layui-btn-xs" lay-event="choose">选择</a>
+</script>
+
+<script>
+    layui.use('table', function(){
+        let table = layui.table;
+        let index = parent.layer.getFrameIndex(window.name);
+        table.render({
+            elem: '#swiperTable',
+            cols: [[
+                {field: 'id', title: '项目ID'},
+                {field: 'name',title: '名称'},
+                {fixed: 'right', title:'操作', toolbar: '#barSwipe', width:150}
+            ]],
+            page: true,
+            id: 'testReload',
+            url: '{:url("admin/swipe/chooseItem")}?type={$type}'
+        });
+        //监听状态切换操作
+        //监听工具条
+        table.on('tool(swiper)', function(obj){
+            let data = obj.data; //获得当前行数据
+            let layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+
+            if(layEvent === 'choose'){
+                let link_id = '#L_link_id';
+                let link_name = '#L_link_name';
+                parent.layui.$(link_id).val(data.id);
+                parent.layui.$(link_name).val(data.name);
+                parent.layer.close(index);
+            }
+        });
+        let $ = layui.$, active = {
+            reload: function(){
+                let demoReload = $('#demoReload');
+
+                //执行重载
+                table.reload('testReload', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        name: demoReload.val()
+                    }
+                }, 'data');
+            }
+        };
+
+        $('.demoTable .layui-btn').on('click', function(){
+            let type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+    });
+</script>
+{/block}

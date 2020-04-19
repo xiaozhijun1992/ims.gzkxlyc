@@ -1,0 +1,109 @@
+{extend name="base" /}
+{block name="content"}
+<xblock>
+    <button class="layui-btn layui-btn-danger" onclick="x_admin_show('添加商品分类','{:url("admin/good_category/add")}',800,600)"><i class="layui-icon"></i>添加</button>
+    <button class="layui-btn" id="expandAll">全部展开</button>
+    <button class="layui-btn" id="foldAll">全部折叠</button>
+</xblock>
+<table id="goodCategoryTable" lay-filter="goodCategoryTable"></table>
+<!-- 操作栏 -->
+<script type="text/html" id="barGoodCategory">
+    <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<!--状态切换-->
+<script type="text/html" id="statusTpl">
+    <input type="checkbox" name="status" value="{{d.id}}" title="启用" lay-filter="status" {{ d.status == 1 ? 'checked' : '' }}>
+</script>
+
+<script type="text/html" id="img">
+    <img style="height: 100%;" src="/{{d.banner}}">
+</script>
+
+<script>
+    layui.extend({treetable: '{/}/static/lib/plugin/treetable-lay/treetable'});
+    layui.use(['table','layer','form','treetable'], function(){
+        let table = layui.table,
+            form = layui.form,
+            layer = layui.layer,
+            treetable = layui.treetable,
+            $ = layui.$;
+        // 渲染表格
+        let treetableIns = treetable.render({
+            treeColIndex: 1,          // treetable新增参数
+            treeSpid: 0,             // treetable新增参数
+            treeIdName: 'id',       // treetable新增参数
+            treePidName: 'pid',     // treetable新增参数
+            treeDefaultClose: true,   // treetable新增参数
+            treeLinkage: true,        // treetable新增参数
+            elem: '#goodCategoryTable',
+            url: '{:url("admin/good_category/get")}',
+            cols: [[
+                {field: 'id', title: 'id',width: 100,align: 'center'},
+                {field: 'name', title: '名称'},
+                {field: 'banner', title: '图片',align: 'center',templet: '#img'},
+                {field: 'order', title: '排序',align: 'center'},
+                {field: 'desc', title: '描述'},
+                {field: 'status', title: '状态',templet: '#statusTpl',align: 'center'},
+                {fixed: 'right', title:'操作', toolbar: '#barGoodCategory', width:150,align: 'center'}
+            ]]
+        });
+
+        $("#expandAll").on('click',function () {
+            treetable.expandAll('#goodCategoryTable');
+        });
+        $("#foldAll").on('click',function () {
+            treetable.foldAll('#goodCategoryTable');
+        });
+        //监听状态切换操作
+        form.on('checkbox(status)', function(obj){
+            $.ajax({
+                method: 'POST',
+                url: '{:url("admin/good_category/toggleStatus")}',
+                data: {"id": obj.value, "status": obj.elem.checked === true ? 1:0},
+                success: function(res){
+                    if(res.code === 1) {
+                        layer.alert(res.message);
+                    }else if( res.code === 0 ){
+                        layer.tips(obj.elem.checked === true? '已启用': '已禁用', obj.othis[0]);
+                    }
+                },
+                error: function(){
+                    layer.alert("网络连接失败");
+                }
+            })
+        });
+        //监听工具条
+        table.on('tool(goodCategoryTable)', function(obj){
+            let layEvent = obj.event;
+
+            if(layEvent === 'del'){ //删除
+                layer.confirm('真的删除么，该操作将会连同子分类一并删除', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: obj.data,
+                        url: '{:url("admin/good_category/del")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+
+                });
+            }else if(layEvent === 'edit'){
+                x_admin_show("编辑分类","{:url('admin/good_category/edit')}?id=" + obj.data.id,800,600);
+            }
+        });
+    });
+</script>
+{/block}

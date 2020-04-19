@@ -1,0 +1,136 @@
+{extend name="base" /}
+{block name="content"}
+<xblock>
+    <button class="layui-btn" id="autoCreate">自动生成结算单</button>
+</xblock>
+<table id="areaSettleTable" lay-filter="areaSettleTable"></table>
+<!-- 操作栏 -->
+<script type="text/html" id="barSwipe">
+    {{#  if(d.status != 1){ }}
+    <a class="layui-btn layui-btn-xs" lay-event="settle" title="结算">
+        <i class="layui-icon layui-icon-ok-circle"></i>
+    </a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del" title="删除">
+        <i class="layui-icon layui-icon-delete"></i>
+    </a>
+    {{#  }  }}
+</script>
+
+<!--状态切换-->
+<script type="text/html" id="statusTpl">
+    {{#  if(d.status == 1){ }}
+    <span class="layui-badge">已结算</span>
+    {{#  } else { }}
+    <span class="layui-badge layui-bg-orange">未结算</span>
+    {{#  } }}
+</script>
+
+
+<script>
+    layui.use('table', function(){
+        let table = layui.table,
+            form = layui.form,
+            layer = layui.layer,
+            $ = layui.$;
+        let tableIns = table.render({
+            elem: '#areaSettleTable',
+            cols: [[
+                {field: 'id', title: "ID",align: 'center',width: 80},
+                {field: 'amount',title: '金额',align: 'center',width: 100},
+                {field: 'area',title: '区域名称',templet: "<div>{{d.area.desc||''}}</div>",align: 'center',width: 200},
+                {field: 'bank',title: '银行',align: 'center',width: 200},
+                {field: 'name',title: '收款人',align: 'center',width: 80},
+                {field: 'account',title: '收款账号',align: 'center',width: 200},
+                {field: 'settle_no', title: '银行结算单',align: 'center',width: 200},
+                {field: 'settle_date',title: '结算日期',align: 'center',width: 180},
+                {field: 'settle_user',title: '结算员',align: 'center',width: 80},
+                {field: 'status', title: '状态',templet: '#statusTpl',align: 'center',width: 80},
+                {field: 'create_time',title: '创建时间',align: 'center',width: 180},
+                {fixed: 'right', title:'操作', toolbar: '#barSwipe', width:130}
+            ]],
+            page: true,
+            url: '{:url("admin/area_settle/get")}'
+        });
+        //监听工具条
+        table.on('tool(areaSettleTable)', function(obj){
+            let layEvent = obj.event;
+
+            if(layEvent === 'del'){ //删除
+                layer.confirm('真的删除么', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: {id: obj.data.id},
+                        url: '{:url("admin/area_settle/del")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                tableIns.reload();
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+
+                });
+            }else if(layEvent === 'settle'){
+                //prompt层
+                layer.prompt({title: '请输入银行结算单号'}, function(settle_no, index){
+                    layer.close(index);
+                    index = layer.load("正在提交...");
+                    console.log(settle_no);
+                    $.ajax({
+                        type: 'POST',
+                        data: {id: obj.data.id,settle_no: settle_no},
+                        url: '{:url("admin/area_settle/settle")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                tableIns.reload();
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+                });
+            }
+        });
+
+        let autoCreateID = "#autoCreate";
+        $(autoCreateID).on("click",function(){
+            layer.confirm('确定要批量生成区域结算单吗？', {
+                btn: ['是','否'] //按钮
+            }, function(index){
+                layer.close(index);
+                index = layer.load();
+                $.ajax({
+                    type: 'POST',
+                    url: '{:url("admin/area_settle/autCreateAreaSettleRecord")}',
+                    success: function(res){
+                        if(res.code === 0) {
+                            tableIns.reload();
+                        }else {
+                            layer.alert(res.message);
+                        }
+                    },
+                    error: function(){
+                        layer.alert("请求失败！");
+                    },
+                    complete: function(){
+                        layer.close(index);
+                    }
+                });
+            });
+        });
+    });
+</script>
+{/block}

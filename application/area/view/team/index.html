@@ -1,0 +1,139 @@
+{extend name="base" /}
+
+{block name="content"}
+<xblock>
+    <button class="layui-btn" onclick="x_admin_show('添加业务员','{:url("area/team/add")}',800,500)"><i class="layui-icon"></i>添加业务员</button>
+</xblock>
+<table id="salesmanTable" lay-filter="salesmanTable"></table>
+
+<script id="status" type="text/html">
+    {{#  if(d.status == '停用'){ }}
+    <span class="layui-badge layui-bg-gray">{{d.status}}</span>
+    {{#  } else if(d.status == '正常'){ }}
+    <span class="layui-badge layui-bg-green">{{d.status}}</span>
+    {{#  } else if(d.status == '申请中'){ }}
+    <span class="layui-badge layui-bg-orange">{{d.status}}</span>
+    {{#  } else if(d.status == '驳回'){ }}
+    <span class="layui-badge layui-bg-red">{{d.status}}</span>
+    {{#  } }}
+</script>
+<!-- 操作栏 -->
+<script id="barManager" type="text/html">
+    {{#  if(d.status == '停用'){ }}
+    <a class="layui-btn layui-bg-green layui-btn-xs" lay-event="enable">启用</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    {{#  } else if(d.status == '正常'){ }}
+    <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="disable">停用</a>
+    <a class="layui-btn layui-bg-cyan layui-btn-xs" lay-event="edit">修改</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    {{#  } else if(d.status == '申请中'){ }}
+    <a class="layui-btn layui-bg-cyan layui-btn-xs" lay-event="edit">修改</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    {{#  } else if(d.status == '驳回'){ }}
+    <a class="layui-btn layui-bg-blue layui-btn-xs" lay-event="reason">驳回原因</a>
+    <a class="layui-btn layui-bg-cyan layui-btn-xs" lay-event="edit">修改</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    {{#  } }}
+</script>
+<script>
+    layui.use('table', function() {
+        let table = layui.table,
+            form = layui.form,
+            layer = layui.layer,
+            $ = layui.$;
+        let tableIns = table.render({
+            elem: '#salesmanTable',
+            cols: [[
+                {field: 'id', hide: true},
+                {field: 'user_id', title: '用户ID'},
+                {field: 'name', title: '姓名'},
+                {field: 'sex', title: '性别'},
+                {field: 'phone', title: '手机号'},
+                {field: 'id_no', title: '身份证号'},
+                {field: 'status', title: '状态', align: 'center',templet: '#status'},
+                {title: '操作', toolbar: '#barManager', fixed: 'right', width: 245}
+            ]],
+            page: true,
+            url: '{:url("area/team/get")}'
+        });
+
+        //监听工具条
+        table.on('tool(salesmanTable)', function(obj){
+            let layEvent = obj.event;
+
+            if(layEvent === 'del'){ //删除
+                layer.confirm('真的删除么', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: obj.data,
+                        url: '{:url("area/team/del")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+
+                });
+            }else if(layEvent === 'reason'){ //查看驳回原因
+                layer.alert(obj.data.reason);
+            }else if(layEvent === 'enable'){ //启用
+                layer.confirm('真的启用么', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: obj.data,
+                        url: '{:url("area/team/enable")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                tableIns.reload();
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+
+                });
+            }else if(layEvent === 'disable'){ //启用
+                layer.confirm('真的停用么', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: obj.data,
+                        url: '{:url("area/team/disable")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                tableIns.reload();
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+
+                });
+            }else if(layEvent === 'edit'){ //删除
+                x_admin_show("修改业务员","{:url('area/team/edit')}?id=" + obj.data.id,800,600);
+            }
+        });
+    })
+</script>
+
+{/block}

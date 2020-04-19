@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		{load href="/static/css/weweb.min.css" /} {load href="/static/css/app.css" /}
+		{load href="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js" /}
+	</head>
+	<body>
+		<view>
+			<div class="head">
+				<div class="jshook-ws-head" style="display: flex; background-color: #fa922f;color: #fff;">
+					<div class="head-back jshook-ws-head-back" style="display: none;">
+
+					</div>
+					<div class="head-home jshook-ws-head-home" onclick="onclickset()" style="display: flex;font-size: 14px;">
+						<div class="cuIcon-back cuIcon-back">
+
+						</div>返回
+					</div>
+					<h3 class="head-title jshook-ws-head-title" style="color: black;">
+    				<i class="head-title-loading" style="display: none;"></i>
+    				<span style="color: #fff;font-size: 16px;width: 100%;font-weight: 100;">店铺</span>
+  					</h3>
+					<div class="head-option jshook-ws-head-option"></div>
+				</div>
+			</div>
+		</view>
+		<wx-view  class="grid col-3 padding-xs" id="getIndexRecommendStore" style="margin-top: 42px;"></wx-view>
+		<wx-view class="text-center text-sm text-gray padding" id="getindexGood_center"></wx-view>
+	</body>
+</html>
+<script type="text/javascript">
+	var keyword;
+	var id;
+	var page=0;
+	var limit=9;
+	var set=1;
+	var goodonttop=0;
+	//获取到Url并且解析Url编码
+	window.onload=function(){
+		parent.$('#loads').hide();
+	}
+	var url = decodeURI(location.search);  
+	if (url.indexOf("?") != -1) { 
+							
+	var str = url.substr(1); 
+		strs = str.split("&");
+		for(var i = 0; i < strs.length; i ++) {
+			if(strs[i].split("=")[0]=="keyword"){
+    			keyword=unescape(strs[i].split("=")[1]);
+    			getIndexGood(page+1,limit,keyword);
+    			
+    		}
+    		if(strs[i].split("=")[0]=="id"){
+    			id=unescape(strs[i].split("=")[1]);
+    			getIndexGoodtow(page+1,limit,id);
+    		}
+		} 
+	}
+	function onclickset(){
+		parent.onclickset();
+	}
+	function getIndexGood(page,limit,keyword){
+		set=0;
+		if(goodonttop==1){
+			return false;
+		}
+		$.post("/api/index/getStoreListByKeyword",{page,limit,keyword},function(res){
+			var html;
+				if(res.data.length>0){
+					var resc;
+					for (var i=0;i<res.data.length;i++) {
+						resc='<view class="cu-card case"><block ><view onclick="jumpToCaroucel('+res.data[i].id+')" class="flex margin-top-sm bg-white margin radius" bindtap="__e"><view class="flex-twice flex justify-center align-center"><image class="margin-xs radius" style="width:100%;" src="/'+res.data[i].show_img+'" mode="widthFix"></image></view><view class="flex-treble padding"><view><view class="text-cut-2">'+res.data[i].name+'</view></view><view class="flex justify-between align-center"><view><uni-rate  bind:__l="__l"></uni-rate></view><view class="text-xs"></view></view><view class="padding-top-xs text-xs text-grey text-cut-2"><text class="cu-tag bg-red radius margin-right-xs text-xs">主营业务</text>'+res.data[i].business+'</view><view class="padding-top-xs text-xs text-grey text-cut-2"><text class="cu-tag bg-red radius margin-right-xs text-xs">店铺地址</text>'+res.data[i].address+'</view></view></view>'
+						if(!html){
+							html=resc;
+						}else{
+							html+=resc;
+						}
+					}
+					$('#getIndexRecommendStore').append(html);
+					set=1
+				}else{
+					$('#getindexGood_center').text('没有更多了');
+					goodonttop=1;
+					return false;
+				
+				}
+		})
+	}
+	function getIndexGoodtow(page,limit,industry_id){
+		set=0;
+		if(goodonttop==1){
+			return false;
+		}
+		$.post("/api/index/getStoreListByIndustryId",{page,limit,industry_id},function(res){
+			var html;
+				if(res.data.length>0){
+					var resc;
+					for (var i=0;i<res.data.length;i++) {
+						resc='<view class="cu-card case"><block ><view onclick="jumpToCaroucel('+res.data[i].id+')" class="flex margin-top-sm bg-white margin radius" bindtap="__e"><view class="flex-twice flex justify-center align-center"><image class="margin-xs radius" style="width:100%;" src="/'+res.data[i].show_img+'" mode="widthFix"></image></view><view class="flex-treble padding"><view><view class="text-cut-2">'+res.data[i].name+'</view></view><view class="flex justify-between align-center"><view><uni-rate  bind:__l="__l"></uni-rate></view><view class="text-xs"></view></view><view class="padding-top-xs text-xs text-grey text-cut-2"><text class="cu-tag bg-red radius margin-right-xs text-xs">主营业务</text>'+res.data[i].business+'</view><view class="padding-top-xs text-xs text-grey text-cut-2"><text class="cu-tag bg-red radius margin-right-xs text-xs">店铺地址</text>'+res.data[i].address+'</view></view></view>'
+						if(!html){
+							html=resc;
+						}else{
+							html+=resc;
+						}
+					}
+					$('#getIndexRecommendStore').append(html);
+					set=1
+				}else{
+					$('#getindexGood_center').text('没有更多了');
+					goodonttop=1;
+					return false;
+				
+				}
+		})
+	}
+	$('.scrollable').on('scroll',function(){
+		if ($('.scrollable').height() + $('.scrollable').scrollTop() >= $('#getindexGood').height()) {
+	    //dosomething
+	    page++;
+	    if(!keyword){
+			getIndexGoodtow(page,limit,id,order);
+		}
+		if(!id){
+			getIndexGood(page,limit,keyword,order);
+		}
+	    return false;
+	  }
+	})
+</script>

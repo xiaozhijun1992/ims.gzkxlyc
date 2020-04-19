@@ -1,0 +1,72 @@
+{extend name="window" /}
+
+{block name="content"}
+<link rel="stylesheet" href="/static/lib/plugin/form-selects/formSelects-v4.css" />
+<form class="layui-form">
+    <input name="id" type="hidden" value="{$group.id}">
+    <div class="layui-form-item">
+        <label for="name" class="layui-form-label"><span class="x-red">*</span>权限组名称</label>
+        <div class="layui-input-inline">
+            <input type="text" id="name" name="title" required=""  autocomplete="off" class="layui-input" placeholder="取一个有代表的名字" value="{$group.title}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="rule" class="layui-form-label"><span class="x-red">*</span>规则</label>
+        <div class="layui-input-block">
+            <select name="rules" xm-select="ruleSelect" id="rule">
+
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="status" class="layui-form-label"><span class="x-red">*</span>状态</label>
+        <div class="layui-input-inline">
+            <select id="status" name="status" class="layui-select">
+                <option></option>
+                <option value="1" {if $group.status == 1}selected{/if}>启用</option>
+                <option value="0" {if $group.status == 0}selected{/if}>禁用</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="L_add" class="layui-form-label">
+        </label>
+        <button id="L_add" class="layui-btn" lay-filter="save" lay-submit="">
+            保存
+        </button>
+    </div>
+</form>
+<script>
+    layui.extend({'formSelects': '{/}/static/lib/plugin/form-selects/formSelects-v4'});
+    layui.use(['form','layer','formSelects'], function(){
+        let $ = layui.$,
+            form = layui.form,
+            formSelects = layui.formSelects,
+            layer = layui.layer;
+
+        formSelects.data('ruleSelect', 'server', {
+            url: '{:url("admin/auth/getRuleFormTableByID")}?id=' + {$group.id}
+        });
+        //监听提交
+        form.on('submit(save)', function(data){
+            console.log(data);
+            $.ajax({
+                type: 'POST',
+                data: data.field,
+                url: "{:url('admin/auth/editGroup')}",
+                success: function(res){
+                    if(res.code === 0) {
+                        layer.alert(res.message, {icon: 6}, function () {
+                            x_admin_close();
+                            parent.layui.table.reload('authGroupTable');
+                        });
+                    }else {
+                        layer.alert(res.message);
+                    }
+                }
+            });
+            return false;
+        });
+    });
+</script>
+{/block}

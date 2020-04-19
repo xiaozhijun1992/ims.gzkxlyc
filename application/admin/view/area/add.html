@@ -1,0 +1,88 @@
+{extend name="window" /}
+
+{block name="content"}
+{load href="/static/lib/plugin/city-picker/city-picker.data.js"/}
+{load href="/static/lib/plugin/city-picker/city-picker.css"/}
+<form class="layui-form">
+    <div class="layui-inline">
+        <label class="layui-form-label width_auto text-r" style="margin-top:2px"> <span class="x-red">*</span>省市县：</label>
+        <div class="layui-input-inline" style="width:400px">
+            <input type="text" autocomplete="on" class="layui-input" id="city-picker" name="desc" readonly="readonly" data-toggle="city-picker" placeholder="请选择">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="manager_name" class="layui-form-label">
+            <span class="x-red">*</span>区域代理人
+        </label>
+        <div class="layui-input-inline">
+            <input type="hidden" id="manager_id" name="manager_id" required=""  class="layui-input">
+            <input type="text" id="manager_name" name="manager_name" required=""  class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="L_add" class="layui-form-label">
+        </label>
+        <button id="L_add" class="layui-btn" lay-filter="add" lay-submit="">
+            增加
+        </button>
+    </div>
+</form>
+<script>
+    layui.extend({citypicker: '{/}/static/lib/plugin/city-picker/city-picker','tableSelect': '{/}/static/lib/plugin/table-select/table-select'});
+    layui.use(['form','layer','citypicker','tableSelect'], function(){
+        let $ = layui.$,
+            form = layui.form,
+            layer = layui.layer,
+            cityPicker = layui.citypicker,
+            tableSelect = layui.tableSelect;
+        let currentPicker = new cityPicker("#city-picker", {
+            provincename:"province",
+            cityname:"city",
+            districtname: "country",
+            level: 'districtId',// 级别
+        });
+
+        tableSelect.render({
+            elem: '#manager_name',
+            checkedKey: 'user_id',
+            searchKey: 'phone',
+            searchPlaceholder: '手机号搜索',
+            table: {	//定义表格参数，与LAYUI的TABLE模块一致，只是无需再定义表格elem
+                url:'{:url("admin/area/getManger")}',
+                cols: [[
+                    {type: 'radio' },
+                    {field: 'user_id', title: '用户ID',width: 70},
+                    {field: 'real_name', title: '姓名',width: 80},
+                    {field: 'phone', title: '手机号',width: 110},
+                    {field: 'id_no', title: '身份证号'},
+                ]]
+            },
+            done: function (elem, data) {
+                $("#manager_id").val(data.data[0].user_id);
+                $("#manager_name").val(data.data[0].real_name);
+            }
+        });
+        currentPicker.setValue("贵州省/六盘水市/钟山区");
+        //监听提交
+        form.on('submit(add)', function(data){
+            console.log(data);
+            $.ajax({
+                type: 'POST',
+                data: data.field,
+                url: "{:url('admin/area/insert')}",
+                success: function(res){
+                    if(res.code === 0) {
+                        layer.alert(res.message, {icon: 6}, function () {
+                            x_admin_close();
+                            x_admin_father_reload();
+                        });
+                    }else {
+                        layer.alert(res.message);
+                    }
+                }
+            });
+            return false;
+        });
+    });
+</script>
+{/block}

@@ -1,0 +1,121 @@
+{extend name="base" /}
+{block name="content"}
+
+<div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+    <ul class="layui-tab-title">
+        <li class="layui-this">快递鸟API参数设置</li>
+        <li>物流公司管理</li>
+    </ul>
+    <div class="layui-tab-content">
+        <!--权限规则管理-->
+        <div class="layui-tab-item layui-show">
+            <blockquote class="layui-elem-quote">
+                平台使用快递鸟（<a href="http://www.kdniao.com/" target="_blank">http://www.kdniao.com/</a>）作为短信平台，配置参数如下，不可修改，需管理员后台修改。
+            </blockquote>
+            <form class="layui-form layui-form-pane">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">用户ID</label>
+                    <div class="layui-input-block">
+                        <input type="text" class="layui-input" disabled value="{$kdniao_param.EBusinessID}" title="用户ID">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">AppKey</label>
+                    <div class="layui-input-block">
+                        <input type="text" class="layui-input" disabled value="{$kdniao_param.AppKey}" title="AppKey">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">即时查询API</label>
+                    <div class="layui-input-block">
+                        <input type="text" class="layui-input" disabled value="{$kdniao_param.OrderTraceURL}" title="即时查询API接口地址">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">物流跟踪API</label>
+                    <div class="layui-input-block">
+                        <input type="text" class="layui-input" disabled value="{$kdniao_param.SubscribeURL}" title="物流跟踪订阅API接口地址">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!--权限组管理-->
+        <div class="layui-tab-item">
+            <div class="demoTable">
+                搜索名称：
+                <div class="layui-inline">
+                    <input class="layui-input" name="id" id="demoReload" autocomplete="off">
+                </div>
+                <button class="layui-btn" data-type="reload">搜索</button>
+            </div>
+            <table id="expressCompany" lay-filter="expressCompany"></table>
+        </div>
+    </div>
+</div>
+
+<!--状态-->
+<script type="text/html" id="status">
+    <input type="checkbox" name="status" value="{{d.id}}" title="启用" lay-filter="status" {{ d.status == 1 ? 'checked' : '' }}>
+</script>
+
+
+<script>
+    layui.use('table', function(){
+        let table = layui.table,
+            form = layui.form,
+            layer = layui.layer,
+            $ = layui.$;
+
+        //渲染权限规则表
+        table.render({
+            elem: '#expressCompany',
+            cols: [[
+                {field: 'id', title: 'ID',width: 150},
+                {field: 'name',title: '快递公司名称'},
+                {field: 'code', title: '代码'},
+                {field:'status', title:'是否启用', templet: '#status'},
+            ]],
+            page: true,
+            id: "expressCompany",
+            url: '{:url("admin/express/getCompany")}'
+        });
+
+        form.on('checkbox(status)', function(obj){
+            console.log(obj.othis[0]);
+            $.ajax({
+                method: 'POST',
+                url: '{:url("admin/express/toggleStatus")}',
+                data: {"id": obj.value, "status": obj.elem.checked === true ? 1:0},
+                success: function(res){
+                    if(res.code === 1) {
+                        layer.alert(res.message);
+                    }else if( res.code =0 ){
+                        layer.tips(obj.elem.checked === true? '已启用': '已禁用', obj.othis[0]);
+                    }
+                },
+                error: function(){
+                    layer.alert("网络连接失败");
+                }
+            })
+        });
+
+        active = {
+            reload: function(){
+                let demoReload = $('#demoReload');
+
+                //执行重载
+                table.reload('expressCompany', {
+                    page: {curr: 1}
+                    ,where: {name: demoReload.val()}
+                });
+            }
+        };
+
+        $('.demoTable .layui-btn').on('click', function(){
+            let type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+    });
+</script>
+{/block}

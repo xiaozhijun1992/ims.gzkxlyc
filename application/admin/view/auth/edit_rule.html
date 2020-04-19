@@ -1,0 +1,70 @@
+{extend name="window" /}
+
+{block name="content"}
+<form class="layui-form">
+    <div class="layui-form-item">
+        <input type="hidden" value="{$rule.id}" name="id">
+        <label for="name" class="layui-form-label"><span class="x-red">*</span>规则标识</label>
+        <div class="layui-input-inline">
+            <input type="text" id="name" name="name" required=""  autocomplete="off" class="layui-input" placeholder="英文标识" value="{$rule.name}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="title" class="layui-form-label"><span class="x-red">*</span>规则名称</label>
+        <div class="layui-input-inline">
+            <input type="text" id="title" name="title" required="" autocomplete="off" class="layui-input" placeholder="取一个有代表的名字" value="{$rule.title}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="condition" class="layui-form-label">规则表达式</label>
+        <div class="layui-input-inline">
+            <input type="text" id="condition" name="condition" required="" autocomplete="off" class="layui-input" placeholder="{score}>100 and {score}<200" value="{$rule.condition}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="status" class="layui-form-label"><span class="x-red">*</span>状态</label>
+        <div class="layui-input-inline">
+            <select id="status" name="status" class="layui-select">
+                <option></option>
+                <option value="1" {if $rule.status == 1 }selected{/if}>启用</option>
+                <option value="0" {if $rule.status == 0 }selected{/if}>禁用</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="L_add" class="layui-form-label">
+        </label>
+        <button id="L_add" class="layui-btn" lay-filter="save" lay-submit="">
+            增加
+        </button>
+    </div>
+</form>
+<script>
+    layui.use(['form','layer'], function(){
+        let $ = layui.$,
+            form = layui.form,
+            layer = layui.layer;
+
+        //监听提交
+        form.on('submit(save)', function(data){
+            console.log(data);
+            $.ajax({
+                type: 'POST',
+                data: data.field,
+                url: "{:url('admin/auth/editRule')}",
+                success: function(res){
+                    if(res.code === 0) {
+                        layer.alert(res.message, {icon: 6}, function () {
+                            x_admin_close();
+                            parent.layui.table.reload('authRuleTable');
+                        });
+                    }else {
+                        layer.alert(res.message);
+                    }
+                }
+            });
+            return false;
+        });
+    });
+</script>
+{/block}

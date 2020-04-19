@@ -1,0 +1,203 @@
+{extend name="base" /}
+{block name="content"}
+<style>
+    .layui-form-label {
+        width: 120px;
+    }
+</style>
+<div class="layui-tab layui-tab-brief" lay-filter="withDrawal">
+    <ul class="layui-tab-title">
+        <li class="layui-this">会员提现</li>
+        <!--<li>区域经理提现</li>-->
+        <!--<li>区域代理提现</li>-->
+        <!--<li>商家提现</li>-->
+    </ul>
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+            <form class="layui-form">
+                <input name="scene" value="user" type="hidden">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">单笔最小提现金额</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="min_amount" class="layui-input"  value="{$user_setting.min_amount|round=###,2}">
+                    </div>
+                    <div class="layui-form-mid layui-word-aux">
+                        <span class="x-red">*</span>请输入金额，格式：10.00，保留两位小数
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">单笔最大提现金额</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="max_amount" class="layui-input" value="{$user_setting.max_amount}">
+                    </div>
+                    <div class="layui-form-mid layui-word-aux">
+                        <span class="x-red">*</span>请输入金额，格式：10.00，保留两位小数
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">单日最大提现笔数</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="max_count" class="layui-input" value="{$user_setting.max_count}">
+                    </div>
+                    <div class="layui-form-mid layui-word-aux">
+                        <span class="x-red">*</span>请单日最大提现笔数，必须是整数
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label for="L_add" class="layui-form-label">
+                    </label>
+                    <button class="layui-btn" lay-filter="save" lay-submit="">
+                        保存
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!--<div class="layui-tab-item">-->
+            <!--<form class="layui-form">-->
+                <!--<input name="scene" value="manager" type="hidden">-->
+                <!--<div class="layui-form-item">-->
+                    <!--<label for="min-amount-1" class="layui-form-label">单笔最小提现金额</label>-->
+                    <!--<div class="layui-input-inline">-->
+                        <!--<input type="text" id="min-amount-1" name="min_amount" class="layui-input" value="{$manager_setting.min_amount}">-->
+                    <!--</div>-->
+                    <!--<div class="layui-form-mid layui-word-aux">-->
+                        <!--<span class="x-red">*</span>请输入金额，格式：10.00，保留两位小数-->
+                    <!--</div>-->
+                <!--</div>-->
+                <!--<div class="layui-form-item">-->
+                    <!--<label for="max-amount-1" class="layui-form-label">单笔最大提现金额</label>-->
+                    <!--<div class="layui-input-inline">-->
+                        <!--<input type="text" id="max-amount-1" name="max_amount" class="layui-input" value="{$manager_setting.max_amount}">-->
+                    <!--</div>-->
+                    <!--<div class="layui-form-mid layui-word-aux">-->
+                        <!--<span class="x-red">*</span>请输入金额，格式：10.00，保留两位小数-->
+                    <!--</div>-->
+                <!--</div>-->
+                <!--<div class="layui-form-item">-->
+                    <!--<label for="max-count" class="layui-form-label">单日最大提现笔数</label>-->
+                    <!--<div class="layui-input-inline">-->
+                        <!--<input type="text" name="max_count" class="layui-input" value="{$manager_setting.max_count}">-->
+                    <!--</div>-->
+                    <!--<div class="layui-form-mid layui-word-aux">-->
+                        <!--<span class="x-red">*</span>请单日最大提现笔数，必须是整数-->
+                    <!--</div>-->
+                <!--</div>-->
+                <!--<div class="layui-form-item">-->
+                    <!--<label for="L_add" class="layui-form-label">-->
+                    <!--</label>-->
+                    <!--<button class="layui-btn" lay-filter="save" lay-submit="">-->
+                        <!--保存-->
+                    <!--</button>-->
+                <!--</div>-->
+            <!--</form>-->
+        <!--</div>-->
+        <!--<div class="layui-tab-item">-->
+            <!--<form class="layui-form">-->
+                <!--<input name="scene" value="area" type="hidden">-->
+                <!--<div class="layui-form-item">-->
+                    <!--<label for="min-amount" class="layui-form-label">单笔最小提现金额</label>-->
+                    <!--<div class="layui-input-inline">-->
+                        <!--<input type="text" name="min_amount" class="layui-input" value="{$area_setting.min_amount}">-->
+                    <!--</div>-->
+                    <!--<div class="layui-form-mid layui-word-aux">-->
+                        <!--<span class="x-red">*</span>请输入金额，格式：10.00，保留两位小数-->
+                    <!--</div>-->
+                <!--</div>-->
+                <!--<div class="layui-form-item">-->
+                    <!--<label for="max-amount" class="layui-form-label">单笔最大提现金额</label>-->
+                    <!--<div class="layui-input-inline">-->
+                        <!--<input type="text" name="max_amount" class="layui-input" value="{$area_setting.max_amount}">-->
+                    <!--</div>-->
+                    <!--<div class="layui-form-mid layui-word-aux">-->
+                        <!--<span class="x-red">*</span>请输入金额，格式：10.00，保留两位小数-->
+                    <!--</div>-->
+                <!--</div>-->
+                <!--<div class="layui-form-item">-->
+                    <!--<label for="max-count" class="layui-form-label">单日最大提现笔数</label>-->
+                    <!--<div class="layui-input-inline">-->
+                        <!--<input type="text" name="max_count" class="layui-input" value="{$area_setting.max_count}">-->
+                    <!--</div>-->
+                    <!--<div class="layui-form-mid layui-word-aux">-->
+                        <!--<span class="x-red">*</span>请单日最大提现笔数，必须是整数-->
+                    <!--</div>-->
+                <!--</div>-->
+                <!--<div class="layui-form-item">-->
+                    <!--<label for="L_add" class="layui-form-label">-->
+                    <!--</label>-->
+                    <!--<button class="layui-btn" lay-filter="save" lay-submit="">-->
+                        <!--保存-->
+                    <!--</button>-->
+                <!--</div>-->
+            <!--</form>-->
+        <!--</div>-->
+        <!--<div class="layui-tab-item">-->
+            <!--<form class="layui-form">-->
+                <!--<input name="scene" value="store" type="hidden">-->
+                <!--<div class="layui-form-item">-->
+                    <!--<label for="min-amount" class="layui-form-label">单笔最小提现金额</label>-->
+                    <!--<div class="layui-input-inline">-->
+                        <!--<input type="text" id="min-amount" name="min_amount" class="layui-input" value="{$store_setting.min_amount}">-->
+                    <!--</div>-->
+                    <!--<div class="layui-form-mid layui-word-aux">-->
+                        <!--<span class="x-red">*</span>请输入金额，格式：10.00，保留两位小数-->
+                    <!--</div>-->
+                <!--</div>-->
+                <!--<div class="layui-form-item">-->
+                    <!--<label for="max-amount" class="layui-form-label">单笔最大提现金额</label>-->
+                    <!--<div class="layui-input-inline">-->
+                        <!--<input type="text" id="max-amount" name="max_amount" class="layui-input" value="{$store_setting.max_amount}">-->
+                    <!--</div>-->
+                    <!--<div class="layui-form-mid layui-word-aux">-->
+                        <!--<span class="x-red">*</span>请输入金额，格式：10.00，保留两位小数-->
+                    <!--</div>-->
+                <!--</div>-->
+                <!--<div class="layui-form-item">-->
+                    <!--<label for="max-count" class="layui-form-label">单日最大提现笔数</label>-->
+                    <!--<div class="layui-input-inline">-->
+                        <!--<input type="text" id="max-count" name="max_count" class="layui-input" value="{$store_setting.max_count}">-->
+                    <!--</div>-->
+                    <!--<div class="layui-form-mid layui-word-aux">-->
+                        <!--<span class="x-red">*</span>请单日最大提现笔数，必须是整数-->
+                    <!--</div>-->
+                <!--</div>-->
+                <!--<div class="layui-form-item">-->
+                    <!--<label for="L_add" class="layui-form-label">-->
+                    <!--</label>-->
+                    <!--<button id="L_add" class="layui-btn" lay-filter="save" lay-submit="">-->
+                        <!--保存-->
+                    <!--</button>-->
+                <!--</div>-->
+            <!--</form>-->
+        <!--</div>-->
+    <!--</div>-->
+</div>
+<script>
+    layui.use(['element','form','layer'], function(){
+        let element = layui.element,
+            form = layui.form,
+            layer = layui.layer;
+
+        //一些事件监听
+        element.on('tab(withDrawal)', function(data){
+            layer.msg("切换到" + this.innerHTML);
+        });
+
+        form.on('submit(save)', function(data){
+            console.log(data.field);
+            $.ajax({
+                type: 'POST',
+                data: data.field,
+                url: "{:url('admin/with_drawal/update')}",
+                success: function(res){
+                    if(res.code === 0) {
+                        layer.alert(res.message, {icon: 6});
+                    }else {
+                        layer.alert(res.message);
+                    }
+                }
+            });
+            return false;
+        });
+    });
+</script>
+{/block}

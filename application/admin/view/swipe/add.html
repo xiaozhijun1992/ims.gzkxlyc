@@ -1,0 +1,136 @@
+{extend name="window" /}
+
+{block name="content"}
+<form class="layui-form">
+    <div class="layui-form-item">
+        <label for="L_title" class="layui-form-label">标题</label>
+        <div class="layui-input-inline">
+            <input type="text" id="L_title" name="title" required="" lay-verify="title"
+                   autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <span class="x-red">*</span>轮播图标题
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="L_img" class="layui-form-label">轮播图片</label>
+        <div class="layui-input-inline">
+            <input type="text" id="L_img" name="img" required="" lay-verify="img"
+                   autocomplete="off" class="layui-input">
+            <img style="width: 190px; height: 91px;margin-top: 10px;" id="preview">
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <a class="layui-btn" id="img_upload">上传</a>
+            <span class="x-red">*</span> 图片尺寸：750 x 360,大小不能超过500KB
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="L_link_type" class="layui-form-label">链接类型</label>
+        <div class="layui-input-inline">
+            <select id="L_link_type" name="link_type">
+                <option value=""></option>
+                <option value="1">店铺</option>
+                <option value="2">商品</option>
+            </select>
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <span class="x-red">*</span>选择轮播图链接类型
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="L_link_id" class="layui-form-label">
+            <span class="x-red">*</span>链接项目
+        </label>
+        <div class="layui-input-inline">
+            <input type="hidden" id="L_link_id" name="link_id" required=""
+                   autocomplete="off" class="layui-input">
+            <input type="text" id="L_link_name" name="link_name" required=""
+                   autocomplete="off" class="layui-input" disabled>
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <a class="layui-btn" onclick="chooseId()">选择项目</a>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="L_order" class="layui-form-label">
+            <span class="x-red">*</span>排序
+        </label>
+        <div class="layui-input-inline">
+            <input type="text" id="L_order" name="sort" required=""
+                   autocomplete="off" class="layui-input" lay-verify="number">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="L_add" class="layui-form-label">
+        </label>
+        <button id="L_add" class="layui-btn" lay-filter="add" lay-submit="">
+            增加
+        </button>
+    </div>
+</form>
+<script>
+    layui.use(['form','layer','upload'], function(){
+        let $ = layui.$,
+            form = layui.form,
+            layer = layui.layer,
+            upload = layui.upload;
+
+        //监听提交
+        form.on('submit(add)', function(data){
+            console.log(data);
+            $.ajax({
+                type: 'POST',
+                data: data.field,
+                url: "{:url('admin/swipe/insert')}",
+                success: function(res){
+                    if(res.code === 0) {
+                        layer.alert(res.message, {icon: 6}, function () {
+                            x_admin_close();
+                            x_admin_father_reload();
+                        });
+                    }else {
+                        layer.alert(res.message);
+                    }
+                }
+            });
+            return false;
+        });
+        let imgUpload = upload.render({
+            elem: '#img_upload' //绑定元素
+            ,url: '{:url("admin/swipe/upload")}' //上传接口
+            ,field: 'image'
+            ,size: 200
+            ,before: function(obj){
+                //预读本地文件示例，不支持ie8
+                obj.preview(function(index, file, result){
+                    $('#preview').attr('src', result); //图片链接（base64）
+                });
+            }
+            ,choose: function(){
+                layer.load();
+            }
+            ,done: function(res){
+                if(res.code !== 0){
+                    layer.closeAll("loading")
+                    layer.alert(res.message);
+                }else {
+                    $("#L_img").val(res.data);
+                    layer.closeAll("loading")
+                }
+            }
+            ,error: function(){
+                layer.closeAll("loading")
+                layer.alert("请求异常！");
+            }
+        });
+    });
+    function chooseId() {
+        let type = $("#L_link_type").val();
+        if(type === ""){
+            layer.alert("请选择链接类型");
+        }else {
+            x_admin_show("选择项目","{:url('admin/swipe/choose')}" + '?type=' + type);
+        }
+    }
+</script>
+{/block}

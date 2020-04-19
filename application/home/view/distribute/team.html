@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		
+		<meta name="viewport" content="width=device-width, height=device-height,user-scalable=no, initial-scale=1.0" />
+		<title></title>
+		{load href="/static/css/weweb.min.css" /}
+    	{load href="/static/css/app.css" /}
+    	{load href="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js" /}
+	</head>
+	<style type="text/css">
+		.divcc{
+			    width: 100%;
+    			padding: 2%;
+   				 box-sizing: border-box;
+    			text-align: center;
+		}
+	</style>
+	<body>
+		<div class="head">
+			<div class="jshook-ws-head" style="display: flex; background-color: #fa922f;color: #fff;">
+				<div class="head-back jshook-ws-head-back" style="display: none;">
+					
+				</div>
+				<div class="head-home jshook-ws-head-home" onclick="onclickset()" style="display: flex;font-size: 14px;">
+					<div class="cuIcon-back cuIcon-back">
+						
+					</div>返回
+				</div>
+				<h3 class="head-title jshook-ws-head-title" style="color: black;">
+    <i class="head-title-loading" style="display: none;"></i>
+    <span style="color: #fff;font-size: 16px;width: 100%;font-weight: 100;">我的团队</span>
+  </h3>
+				<div class="head-option jshook-ws-head-option"></div>
+			</div>
+		</div>
+		<div class="scrollable" style="bottom: 56px; top: 42px;">
+		<div id="weweb-view-4" view-id="4" style="height: 100%;">
+		<view class="cu-bar bg-white margin-top">
+
+	
+    <view class="action">
+      <text class="cuIcon-group" style="font-size: 18px;"></text>我的团队（<span id="len">0</span> 人）</view>
+  </view>
+  <view class="padding flex flex-wrap" id='team'>
+    
+      
+
+  </view>
+  <div class="team">
+  	
+  </div>
+ </div>
+ </div>
+	</body>
+</html>
+<script type="text/javascript">
+	window.onload=function(){
+		parent.$('#loads').hide();
+	}
+	
+	function onclickset(){
+		parent.onclickset();
+	}
+	getTeam();
+	function getTeam(){
+
+		
+		$.post('/api/distribute/getTeam',{user_id:parent.user_id},function(res){
+			if(res.data){
+				$('#len').text(res.data.length);
+				var html;
+				for (var i=0;i<res.data.length;i++) {
+					var bclass='cuIcon-male bg-blue';
+					var chtml='';
+					if(res.data[i].sex==2){
+						bclass='cuIcon-female bg-pink';
+					}
+					if(res.data[i].avator){
+						
+						chtml='<view class="basis-xs margin-top" ><view class="cu-avatar round lg" style="background-image:url('+res.data[i].avator+')"><view class="cu-tag badge '+bclass+'"></view></view></view>';
+					}else{
+						chtml='<view class="basis-xs margin-top" ><view class="cu-avatar round lg"><text class="cuIcon-people"></text><view class="cu-tag badge '+bclass+'"></view></view></view>';
+					}
+					if(!html){
+						html=chtml;
+					}else{
+						html+=chtml;
+					}
+				}
+				$('#team').append(html);
+			}else{
+				$('.team').append('<div class="divcc"><view class="padding-tb-xl text-gray text-center">您还没有团队...</view></div>');	
+			}
+			
+		})
+	}
+</script>

@@ -1,0 +1,200 @@
+{extend name="window" /}
+
+{block name="content"}
+<script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=SYt2oYMQf7qRhpu54agaOxQChLUfetme"></script>
+<form class="layui-form" action="">
+    <div class="layui-tab layui-tab-brief">
+        <ul class="layui-tab-title">
+            <li class="layui-this">基本信息</li>
+            <li>地理位置</li>
+            <li>店铺轮播图</li>
+            <li>店铺资料</li>
+        </ul>
+        <div class="layui-tab-content" style="height: 100px;">
+            <div class="layui-tab-item layui-show">
+                <input name="id" class="layui-input" value="{$store_info.id}" type="hidden">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">店铺名称</label>
+                    <div class="layui-input-inline">
+                        <input name="name" class="layui-input" value="{$store_info.name}" disabled>
+                    </div>
+                    <label class="layui-form-label">行业</label>
+                    <div class="layui-input-inline">
+                        <select name="industry_id" lay-search="" disabled>
+                            <option value=""></option>
+                            {volist name="industry_list" id="industry"}
+                            <option value="{$industry.id}" {if $industry.id == $store_info.industry_id} selected {/if}>{$industry.name}</option>
+                            {/volist}
+                        </select>
+                    </div>
+                    <label class="layui-form-label">店主</label>
+                    <div class="layui-input-inline">
+                        <input name="user_id" class="layui-input" id="user_id" type="hidden" value="{$store_info.user_id}">
+                        <input class="layui-input" id="user_name" value="{$user.nick_name}" disabled>
+                    </div>
+                    <label class="layui-form-label">到期时间</label>
+                    <div class="layui-input-inline">
+                        <input name="expire_time" id="expire_time" class="layui-input" value="{$store_info.expire_time}" disabled>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">联系人</label>
+                    <div class="layui-input-inline">
+                        <input name="contact_name" class="layui-input" value="{$store_info.contact_name}" disabled>
+                    </div>
+                    <label class="layui-form-label">联系手机</label>
+                    <div class="layui-input-inline">
+                        <input name="contact_phone" class="layui-input" value="{$store_info.contact_phone}" disabled>
+                    </div>
+                    <label class="layui-form-label">联系邮箱</label>
+                    <div class="layui-input-inline">
+                        <input name="contact_email" class="layui-input" value="{$store_info.contact_email}" disabled>
+                    </div>
+                    <label class="layui-form-label">业务员</label>
+                    <div class="layui-input-inline">
+                        <select name="manager_id" lay-search="" disabled>
+                            <option value=""></option>
+                            {volist name="salesman_list" id="salesman"}
+                            <option value="{$salesman.id}" {if $salesman.id == $store_info.manager_id} selected {/if}>{$salesman.name}</option>
+                            {/volist}
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" disabled>店铺地址</label>
+                    <div class="layui-input-block">
+                        <input name="address" class="layui-input" value="{$store_info.address}">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" for="business">主营业务</label>
+                    <div class="layui-input-block">
+                        <input name="business" class="layui-input" id="business" value="{$store_info.business}" disabled>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" for="introduce">店铺简介</label>
+                    <div class="layui-input-block">
+                        <textarea name="introduce" class="layui-textarea" id="introduce" rows="5" disabled>{$store_info.business}</textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">商品形象图</label>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"></label>
+                    <div class="layui-input-block">
+                        <img src="/{$store_info.show_img}" id="preview">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-tab-item">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">经度</label>
+                    <div class="layui-input-inline">
+                        <input name="lng" id="lng" class="layui-input" disabled title="经度" value="{$store_info.lng}">
+                    </div>
+                    <label class="layui-form-label">纬度</label>
+                    <div class="layui-input-inline">
+                        <input name="lat" id="lat" class="layui-input" disabled title="纬度" value="{$store_info.lat}">
+                    </div>
+                </div>
+                <div class="layui-input-item">
+                    <label class="layui-form-label"></label>
+                    <div class="layui-input-block">
+                        <div id="map" style="width: 700px; height: 400px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-tab-item">
+                <div class="layui-upload">
+                    <div class="layui-upload-list">
+                        <table class="layui-table">
+                            <thead>
+                            <tr><th>文件名</th>
+                                <th>大小</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr></thead>
+                            {foreach $store_banner as $banner }
+                            <tr>
+                                <td><a href="/{$banner.img}" target="_blank">{$banner.img}</a></td>
+                                <td></td>
+                                <td>已上传</td>
+                                <td><i class="layui-btn layui-btn-xs layui-btn-danger delete-uploaded">删除</i></td>
+                            </tr>
+                            {/foreach}
+                            <tbody id="demoList"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-tab-item">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">营业执照</label>
+                    <div class="layui-input-inline">
+                    </div>
+                    {foreach $store_material as $material }
+                    {if $material.type == 1}{assign name="yyzz" value="$material.img" /}
+                    {/if}
+                    {/foreach}
+                    <div class="layui-form-mid layui-word-aux" id="yyzzDesc"><a target="_blank" href="/{$yyzz|default=''}">{$yyzz|default=''}</a></div>
+
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">协议书</label>
+                    <div class="layui-input-inline">
+                    </div>
+                    {foreach $store_material as $material }
+                    {if $material.type == 2}{assign name="xys" value="$material.img" /}
+                    {/if}
+                    {/foreach}
+                    <div class="layui-form-mid layui-word-aux" id="xysDesc"><a target="_blank" href="/{$xys|default=''}">{$xys|default=''}</a></div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">负责人身份证</label>
+                    <div class="layui-input-inline">
+                    </div>
+                    {foreach $store_material as $material }
+                    {if $material.type == 3}{assign name="sfz" value="$material.img" /}
+                    {/if}
+                    {/foreach}
+                    <div class="layui-form-mid layui-word-aux" id="sfzDesc"><a target="_blank" href="/{$sfz|default=''}">{$sfz|default=''}</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<script>
+    layui.use(['form'], function(){
+        let $ = layui.$,
+            form = layui.form;
+
+        // 选择经纬度坐标
+        var mp = new BMap.Map("map");
+
+        mp.enableScrollWheelZoom();
+        mp.enableInertialDragging();
+        mp.enableContinuousZoom();
+
+        var point = new BMap.Point({$store_info.lng},{$store_info.lat});
+        mp.centerAndZoom(point, 16);
+        var mk = new BMap.Marker(point);
+        mp.addOverlay(mk);
+
+        mp.addEventListener("click",function(e){
+            var mk = new BMap.Marker(e.point);
+            mp.clearOverlays();
+            mp.addOverlay(mk);
+            mp.panTo(e.point);
+            console.log(e.point.lng + "," + e.point.lat);
+            $("#lng").val(e.point.lng);
+            $("#lat").val(e.point.lat)
+        });
+
+
+    });
+</script>
+{/block}

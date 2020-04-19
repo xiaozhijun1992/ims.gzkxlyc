@@ -1,0 +1,116 @@
+{extend name="base" /}
+{block name="content"}
+<style>
+    .curImg {
+        border: red solid 1px;
+    }
+</style>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space10">
+        <div class="layui-col-md7">
+            <div class="grid-demo layui-bg-gray">
+                <div class="layui-row">
+                    <div class="layui-col-md6 curImg">
+                        <img class="img" id="left" src="{$left.img}" width="100%" data-url="{$left.url|default=''}">
+                    </div>
+                    <div class="layui-col-md6">
+                        <div class="layui-row">
+                            <img class="img" id="right_top" src="{$right_top.img|default='https://ims.gzkxly.com/static/images/activity_right_none.png'}" width="100%" data-url="{$right_top.url|default=''}">
+                        </div>
+                        <div class="layui-row">
+                            <img class="img"  id="right_bottom" src="{$right_bottom.img|default='https://ims.gzkxly.com/static/images/activity_right_none.png'}" width="100%" data-url="{$right_bottom.url|default=''}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md5">
+            <form class="layui-form" style="padding: 20px;background-color: white">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">URL地址</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="url" lay-verify="required" lay-reqtext="活动地址不能为空" class="layui-input" title="活动URL地址">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">活动图片</label>
+                    <div class="layui-input-block">
+                        <input id="img" type="text" name="img" autocomplete="off"  class="layui-input" disabled title="活动图片">
+                    </div>
+                    <div class="layui-upload">
+                        <button type="button" class="layui-btn layui-btn-danger" id="upload">上传图片</button>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label for="L_add" class="layui-form-label">
+                    </label>
+                    <button id="L_add" class="layui-btn" lay-filter="save" lay-submit="">
+                        保存
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use(['form','layer','upload'], function(){
+        let form = layui.form,
+            layer = layui.layer,
+            upload = layui.upload,
+            $ = layui.$;
+
+        let current = 'left';
+
+        $(".img").on('click',function(){
+            current = $(this).attr("id");
+            $(".curImg").removeClass("curImg");
+            $(this).parent().first().addClass("curImg");
+            $("#img").val($(this).attr("src"));
+        });
+
+        //监听提交
+        form.on('submit(save)', function(data){
+            data = data.field;
+            data["type"] = current;
+            $.ajax({
+                type: 'POST',
+                data: data,
+                url: "{:url('admin/activity/threeActivityUpdate')}",
+                success: function(res){
+                    if(res.code !== 0) {
+                        layer.alert(res.message, {
+                            icon: 1,
+                            skin: 'layer-ext-moon' //该皮肤由layer.seaning.com友情扩展。关于皮肤的扩展规则，去这里查阅
+                        });
+                    }else {
+                        layer.msg(res.message);
+                    }
+                }
+            });
+            return false;
+        });
+
+        //图片上传
+        var uploadInst = upload.render({
+            elem: '#upload'
+            ,url: '{:url("admin/activity/upload")}' //上传接口
+            ,field: 'image'
+            ,data: {type: function(){
+                    return current;
+                }}
+            ,done: function(res){
+                //如果上传失败
+                if(res.code !== 0){
+                    return layer.alert(res.message);
+                }else {
+                    $("#img").val(res.data);
+                    $("#"+current).attr('src',res.data);
+                    return layer.msg('上传成功');
+                }
+
+            }
+        });
+    });
+</script>
+{/block}

@@ -1,0 +1,45 @@
+{extend name="base" /}
+{block name="content"}
+<form action="" class="layui-form">
+    <input name="key" value="auto_receive_time" type="hidden">
+    <div class="layui-form-item">
+        <label class="layui-form-label">自动收货时间</label>
+        <div class="layui-input-inline">
+            <input class="layui-input" name="value" autocomplete="off">
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <span class="x-red">*</span>请填写自动收货时间，单位为：天
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="L_add" class="layui-form-label">
+        </label>
+        <button id="L_add" class="layui-btn" lay-filter="save" lay-submit="">
+            保存
+        </button>
+    </div>
+</form>
+<script>
+    layui.use(['form','layer'],function(){
+        let form = layui.form,
+            $ = layui.$,
+            layer = layui.layer;
+
+        form.on("submit(save)",function(data){
+            console.log(data.field);
+            $.ajax({
+                type: 'POST',
+                data: data.field,
+                url: '{:url("admin/shopping_setting/save")}',
+                success: function(res){
+                    layer.alert(res.message);
+                },
+                error: function(){
+                    layer.alert("通信失败");
+                }
+            });
+            return false;
+        })
+    })
+</script>
+{/block}

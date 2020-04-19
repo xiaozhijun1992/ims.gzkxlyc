@@ -1,0 +1,21 @@
+{extend name="window" /}
+
+{block name="content"}
+<ul class="layui-timeline">
+    <h3 class="layui-bg-gray" style="text-align: center;padding: 5px;margin-bottom: 10px;">物流公司：{$company.name}</h3>
+    {if count($traces)>0}
+    {foreach $traces as $trace }
+    <li class="layui-timeline-item">
+        <i class="layui-icon layui-timeline-axis">&#xe61a;</i>
+        <div class="layui-timeline-content layui-text">
+            <h4 class="layui-timeline-title">{$trace->AcceptTime}</h4>
+            <p style="color: #aaaaaa; word-break: break-all;">{$trace->AcceptStation}</p>
+        </div>
+    </li>
+    {/foreach}
+    {else /}
+    <p style="text-align: center">暂无物流信息</p>
+    {/if}
+</ul>
+
+{/block}

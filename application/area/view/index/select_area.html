@@ -1,0 +1,32 @@
+{extend name="window" /}
+
+{block name="content"}
+<div style="width: 50%; margin: 0 auto;">
+    <div style="text-align: center">请选择要登录的区域</div>
+    <table class="layui-table">
+        <thead>
+            <tr>
+                <th>区域ID</th>
+                <th>区域</th>
+                <th>创建时间</th>
+            </tr>
+        </thead>
+        <tbody>
+        {volist name="Think.session.areas" id="area"}
+            <tr onclick="select({$area.id})">
+                <td>{$area.id}</td>
+                <td>{$area.desc}</td>
+                <td>{$area.create_time}</td>
+            </tr>
+        {/volist}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function select(id){
+        window.location.href = "{:url('area/index/selectArea')}?area_id="+id;
+    }
+</script>
+
+{/block}

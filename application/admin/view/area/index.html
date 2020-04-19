@@ -1,0 +1,385 @@
+{extend name="base" /}
+{block name="content"}
+<style>
+    .layui-badge{
+        min-width: 50px;
+    }
+</style>
+<div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+    <ul class="layui-tab-title">
+        <li class="layui-this">代理人管理</li>
+        <li>区域代理管理</li>
+        <li>业务员管理</li>
+    </ul>
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+            <xblock>
+                <button class="layui-btn" onclick="x_admin_show('添加区域代理人','{:url("admin/area/addAreaManager")}',800,500)"><i class="layui-icon"></i>添加</button>
+            </xblock>
+            <table id="managerTable" lay-filter="managerTable"></table>
+        </div>
+        <div class="layui-tab-item">
+            <xblock>
+                <button class="layui-btn" onclick="x_admin_show('添加代理区域','{:url("admin/area/add")}',800,600)"><i class="layui-icon"></i>添加</button>
+            </xblock>
+            <table id="areaTable" lay-filter="areaTable"></table>
+        </div>
+        <div class="layui-tab-item" id="saleman">
+            <table id="salesmanTable" lay-filter="salesmanTable"></table>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- 操作栏 -->
+<script type="text/html" id="barArea">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<!--状态-->
+<script type="text/html" id="statusArea">
+    <input type="checkbox" name="status" value="{{d.id}}" title="启用" lay-filter="status" {{ d.status == 1 ? 'checked' : '' }}>
+</script>
+
+<script type="text/html" id="barManager">
+    <a class="layui-btn layui-btn-xs" lay-event="changeStatus" title="修改状态">操作</a>
+    <a class="layui-btn layui-btn-xs" lay-event="edit">修改</a>
+    <a class="layui-btn layui-btn-xs" lay-event="view" title="查看详细信息">查看</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script type="text/html" id="barSalesman">
+    {{#  if(d.status === '申请中'){ }}
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="changeStatus" title="用户审核">审核</a>
+    {{#  } }}
+    {{#  if(d.status === '正常'){ }}
+    <a class="layui-btn layui-btn-xs layui-btn-warm" lay-event="disable" title="停用用户">停用</a>
+    {{#  } }}
+    {{#  if(d.status === '停用'){ }}
+    <a class="layui-btn layui-btn-xs layui-btn-warm" lay-event="enable" title="启用用户">启用</a>
+    {{#  } }}
+    {{#  if(d.status === '驳回'){ }}
+    <a class="layui-btn layui-btn-xs layui-btn-warm" lay-event="reason" title="驳回原因">原因</a>
+    {{#  } }}
+    <a class="layui-btn layui-btn-xs" lay-event="view" title="查看详细信息">查看</a>
+</script>
+
+<script type="text/html" id="salesmanStatus">
+    {{#  if(d.status === '申请中'){ }}
+    <span class="layui-badge layui-bg-cyan">{{d.status}}</span>
+    {{#  } }}
+    {{#  if(d.status === '正常'){ }}
+    <span class="layui-badge layui-bg-green">{{d.status}}</span>
+    {{#  } }}
+    {{#  if(d.status === '停用'){ }}
+    <span class="layui-badge layui-bg-gray">已{{d.status}}</span>
+    {{#  } }}
+    {{#  if(d.status === '驳回'){ }}
+    <span class="layui-badge">已{{d.status}}</span>
+    {{#  } }}
+
+</script>
+
+<script type="text/html" id="area">
+    {{#  if(d.area){ }}
+    {{d.area.desc}}
+    {{# } }}
+</script>
+
+<script>
+    layui.extend({tableFilter: '{/}/static/lib/plugin/table-filter/tableFilter'});
+    layui.use(['table','form','layer','tableFilter'], function(){
+        let table = layui.table,
+            form = layui.form,
+            layer = layui.layer,
+            tableFilter = layui.tableFilter,
+            $ = layui.$;
+        table.render({
+            elem: '#areaTable',
+            cols: [[
+                {field: 'id', title: "ID"},
+                {field: 'desc',title: '省市县'},
+                {field: 'manager_id', title: '区域代理人ID',sort: true},
+                {field: 'manager_name', title: '区域代理人名称',sort: true},
+                {field:'status', title:'是否启用', width:110, templet: '#statusArea', unresize: true},
+                {fixed: 'right', title:'操作', toolbar: '#barArea', width:150}
+            ]],
+            url: '{:url("admin/area/get")}'
+        });
+        table.render({
+            elem: '#managerTable',
+            cols: [[
+                {field: 'id', hide: true},
+                {field: 'user_id',title: '用户ID'},
+                {field: 'real_name',title: '姓名'},
+                {field: 'sex', title: '性别'},
+                {field: 'phone', title: '手机号'},
+                {field: 'id_no',title: '身份证号'},
+                {field:'status', title:'状态',align: 'center'},
+                {title:'操作', toolbar: '#barManager',fixed: 'right',width: 245}
+            ]],
+            url: '{:url("admin/area/getManger")}'
+        });
+
+        let salesmanTable = table.render({
+            elem: '#salesmanTable',
+            cols: [[
+                {field: 'id', hide: true},
+                {field: 'area_id',title: '区域ID'},
+                {field: 'area',title: '区域',templet: '#area'},
+                {field: 'user_id',title: '用户ID'},
+                {field: 'name',title: '姓名'},
+                {field: 'sex', title: '性别'},
+                {field: 'phone', title: '手机号'},
+                {field: 'id_no',title: '身份证号'},
+                {field: 'status', title:'状态',templet: '#salesmanStatus'},
+                {title: '操作', toolbar: '#barSalesman',fixed: 'right'}
+            ]],
+            url: '{:url("admin/salesman/get")}',
+            page:true,
+            done: function(){
+                //非常重要！如果使table.reload()后依然使用过滤，就必须将过滤组件也reload()一下
+                tableFilterIns.reload()
+            }
+        });
+
+        let tableFilterIns = tableFilter.render({
+            'elem' : '#salesmanTable',//table的选择器
+            'mode' : 'api',//过滤模式
+            'parent': '#saleman',
+            'filters' : [
+                {field: 'area_id',type: 'input'},
+                {field: 'name',type: 'input'},
+                {field: 'user_id',type: 'input'},
+                {field: 'sex',type: 'radio',data: [{ "key":"0", "value":"男"},{ "key":"1", "value":"女"}]},
+                {field: 'phone',type: 'input'},
+                {field: 'area_id',type: 'input'},
+                {field: 'id_no',type: 'input'},
+                {field: 'status',type: 'radio',data: [{ "key":"0", "value":"停用"},{ "key":"1", "value":"正常"},{ "key":"2", "value":"申请中"},{ "key":"3", "value":"驳回"}]},
+            ],//过滤项配置
+            'done': function(filters){
+
+            }
+        });
+
+        <!--区域代理设置表相关操作-->
+        //监听状态切换操作
+        form.on('checkbox(status)', function(obj){
+            $.ajax({
+                method: 'POST',
+                url: '{:url("admin/area/toggleStatus")}',
+                data: {"id": obj.value, "status": obj.elem.checked === true ? 1:0},
+                success: function(res){
+                    if(res.code === 1) {
+                        layer.alert(res.message);
+                    }else if( res.code =0 ){
+                        layer.tips(obj.elem.checked === true? '已启用': '已禁用', obj.othis);
+                    }
+                },
+                error: function(){
+                    layer.alert("网络连接失败");
+                }
+            })
+        });
+        //监听工具条
+        table.on('tool(areaTable)', function(obj){
+            let layEvent = obj.event;
+
+            if(layEvent === 'del'){ //删除
+                layer.confirm('真的删除么？', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: obj.data,
+                        url: '{:url("admin/area/del")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+
+                });
+            }else if(layEvent === 'edit'){ //删除
+                x_admin_show("修改区域代理","{:url('admin/area/edit')}?id=" + obj.data.id,800,600);
+            }
+        });
+        <!--代理人管理表操作-->
+        //监听工具条
+        table.on('tool(managerTable)', function(obj){
+            let layEvent = obj.event;
+            if(layEvent === 'del'){ //删除
+                // 查询该区域代理人是否有代理的区域
+                $.ajax({
+                    type: 'POST',
+                    data: {"user_id": obj.data.user_id},
+                    url: '{:url("admin/area/getAreaByUserID")}',
+                    success: function (res) {
+                        if(res.code === 0 && res.count === 0){
+                            layer.confirm('真的删除么？', function(index){
+                                $.ajax({
+                                    type: 'POST',
+                                    data: obj.data,
+                                    url: '{:url("admin/area/delAreaManager")}',
+                                    success: function(res){
+                                        if(res.code === 0) {
+                                            obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                                        }else {
+                                            layer.alert(res.message);
+                                        }
+                                    },
+                                    error: function(){
+                                        layer.alert("请求失败！");
+                                    },
+                                    complete: function(){
+                                        layer.close(index);
+                                    }
+                                });
+
+                            });
+                        }else {
+                            layer.alert(res.message);
+                        }
+                    },
+                    error: function () {
+                        layer.alert("请求失败");
+                    }
+                });
+
+            }else if(layEvent === 'edit'){ //编辑
+                x_admin_show("修改代理人信息","{:url('admin/area/editAreaManager')}?id=" + obj.data.id,800,600);
+            }else if(layEvent === 'view'){ //查看
+                layer.msg("查看详细信息");
+                //x_admin_show("修改代理人信息","{:url('admin/area/viewAreaManager')}?id=" + obj.data.id,800,600);
+            }else if(layEvent === 'changeStatus'){ //操作
+                layer.msg("操作");
+                //x_admin_show("修改代理人信息","{:url('admin/area/viewAreaManager')}?id=" + obj.data.id,800,600);
+            }
+        });
+
+        table.on('tool(salesmanTable)', function(obj){
+            let layEvent = obj.event;
+
+            if(layEvent === 'disable'){ //停用
+                layer.confirm('真的停用么？', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: obj.data,
+                        url: '{:url("admin/salesman/disable")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                // 刷新表格
+                                layer.alert(res.message,function(index){
+                                    layer.close(index);
+                                    salesmanTable.reload();
+                                });
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+                });
+            }else if(layEvent === 'view'){ //删除
+                x_admin_show("业务员详细信息","{:url('admin/area/salesmanView')}?id=" + obj.data.id);
+            }else if(layEvent === 'changeStatus'){ //删除
+                layer.confirm('业务员审核是否通过？', {
+                    btn: ['通过','驳回'] //按钮
+                }, function(){
+                    // 通过
+                    $.ajax({
+                        type: 'POST',
+                        data: obj.data,
+                        url: '{:url("admin/salesman/enable")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                // 刷新表格
+                                layer.alert("已通过",function(index){
+                                    layer.close(index);
+                                    salesmanTable.reload();
+                                });
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+                }, function(){
+                    // 驳回
+                    layer.prompt({title: '请输入驳回原因', formType: 2}, function(reason, index){
+                        layer.close(index);
+                        $.ajax({
+                            type: 'POST',
+                            data: {id: obj.data.id,reason: reason},
+                            url: '{:url("admin/salesman/reject")}',
+                            success: function(res){
+                                if(res.code === 0) {
+                                    // 刷新表格
+                                    layer.alert(res.message,function(index){
+                                        layer.close(index);
+                                        salesmanTable.reload();
+                                    });
+                                }else {
+                                    layer.alert(res.message);
+                                }
+                            },
+                            error: function(){
+                                layer.alert("请求失败！");
+                            },
+                            complete: function(){
+                                layer.close(index);
+                            }
+                        });
+                    });
+                });
+            }else if(layEvent === 'enable'){ //删除
+                layer.confirm('真的启用么？', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: obj.data,
+                        url: '{:url("admin/salesman/enable")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                // 刷新表格
+                                layer.alert(res.message,function(index){
+                                    layer.close(index);
+                                    salesmanTable.reload();
+                                });
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+                });
+            }else if(layEvent === 'reason'){
+                layer.alert(obj.data.reason);
+            }
+        });
+    });
+</script>
+{/block}

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, height=device-height,user-scalable=no, initial-scale=1.0" />
+	<title></title>
+	{load href="/static/css/weweb.min.css" /} {load href="/static/css/app.css" /} {load href="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js" /} {load href="/static/lib/layui/layui.js" /} {load href="/static/lib/layui/css/layui.css" /}
+	{load href="/static/js/render.js" /}
+	<style type="text/css">
+		view{
+			display: block;
+		}
+		.VerticalBox{
+			display:-webkit-box;
+display:-webkit-flex;
+display:-ms-flexbox;
+display:flex;
+
+		}
+		.VerticalNav{
+			width: 130px;
+		}
+		.border-rs{
+			border-bottom: none;
+    		text-align: center;
+    		padding: 14px 0;
+		}
+		.cu-avatar {
+			float: left;
+			margin-left:10px;
+			margin-top:10px;
+			}
+		.text-grey{
+    		line-height: 50px;
+    		margin-left: 60px;
+		}
+		.backgg{
+			background: #fff;
+		}
+		.spancc{
+			line-height: 15px;
+    		height: 15px;
+    		display: block;
+    		border-right: 4px solid;
+    		padding: 5px;
+		}
+	</style>
+	</head>
+	
+	<body>
+		<view>
+			<div class="head">
+				<div class="jshook-ws-head" style="display: flex; background-color: #fa922f;color: #fff;">
+					<div class="head-back jshook-ws-head-back" style="display: none;">
+
+					</div>
+					<div class="head-home jshook-ws-head-home" onclick="onclickset()" style="display: flex;font-size: 14px;">
+						<div class="cuIcon-back cuIcon-back">
+
+						</div>返回
+					</div>
+					<h3 class="head-title jshook-ws-head-title" style="color: black;">
+    <i class="head-title-loading" style="display: none;"></i>
+    <span style="color: #fff;font-size: 16px;width: 100%;font-weight: 100;">商品分类</span>
+  </h3>
+					<div class="head-option jshook-ws-head-option"></div>
+				</div>
+			</div>
+		</view>
+		<div id="storeshtml" class="VerticalBox" style="margin-top: 42px;">
+		<scroll-view class="VerticalNav nav" style="    overflow-y: scroll;height: 520px;width: 100%;"  scroll-y scroll-with-animation scroll-top="{{verticalNavTop}}">
+	      <block id="storesnav">
+	        
+	      </block>
+	    </scroll-view>
+	    <scroll-view class="VerticalMain"  bindscroll="__e" style="width: 100%;margin: 10px;overflow-y: scroll;height: 500px;">
+	      <block id="storesmain">
+	      
+	        
+	        
+	        
+      </block>
+    </scroll-view>
+		</div>
+		
+	</body>
+</html>
+<script type="text/javascript">
+getCategory();
+window.onload=function(){
+		parent.$('#loads').hide();
+	}
+	var mycars=new Array();
+	function getCategory(){
+		$.post('/api/index/getCategory','',function(res){
+			if(res.data){
+				var html1;
+				var htops;
+				var old_htops=0;
+				for (var i=0;i<res.data.length;i++) {
+					var spancc='';
+					var htop=20;
+					mycars[i]=old_htops;
+					if(i==0){
+						htop=0;
+					}
+					if(i==0){
+						var ccscalss='text-green border-rs cur ';
+						var spancc='spancc';
+					}else{
+						var ccscalss='border-rs cur backgg';
+					}
+					var htopc=0;
+					if(i>2){
+//						htopc=((i)*47)+26;
+						htops=(42+((res.data[i].child).length)*50)+36+36;	
+					}else{
+						htops=(42+((res.data[i].child).length)*50)+24+12;
+					}
+					if(i==1){
+						htopc=50;
+					}else{
+						htopc=30;
+					}
+					if(i==3){
+						htopc=50;
+					}
+					if(i==4){
+						htopc=70;
+					}
+					if(i>6){
+						htopc=90;
+					}
+					var htmlcc='<view onclick="storesnav($(this))" scrollToph='+(old_htops)+' class="'+ccscalss+'"   bindtap="__e"><span class="onclickcc '+spancc+'">'+res.data[i].name+'</span></view>';
+					if(!html1){
+						html1=htmlcc;
+					}else{
+						html1+=htmlcc;
+					}
+					var html2='';
+					old_htops=old_htops+htops-htopc;
+					
+					for (var j=0;j<(res.data[i].child).length;j++) {
+						
+						var htmlccsc='<view  scrollToph='+old_htops+' class="padding-top padding-lr" style="box-sizing: border-box;background: #fff;margin-bottom: 12px;padding-bottom: 12px;" ><view class="cu-bar solid-bottom "><view class="action"><text class="cuIcon-title text-green"></text>'+res.data[i].name+'</view></view>';
+						var htmlccs='<view onclick="goodCategory('+res.data[i].child[j].id+')" class="cu-list menu-avatar"><block ><view  class="cu-item" bindtap="__e"><view class="cu-avatar round lg"><image style="width: 40px;"  src="/'+res.data[i].child[j].banner+'" mode="widthFix"></image></view><view class="content"><view class="text-grey">'+res.data[i].child[j].name+'</view></view></view></block></view>';
+						if(!html2){
+							html2=htmlccsc+htmlccs;
+						}else{
+							html2+=htmlccs;
+						}
+					}
+					$('#storesmain').append(html2+'</view>');
+				}
+				$('#storesnav').append(html1);
+				
+			}
+		})
+	}
+	function onclickset(){
+		parent.onclickset();
+	}
+	function storescom(obj){
+		console.log(obj);
+	}
+	function storesnav(obj){
+		var id=obj.attr('data-id');
+		var scrollTop=obj.attr('scrollToph');
+		$('#storesnav view').removeClass('text-green backgg');
+		obj.addClass('text-green');
+		$('#storesnav view span').removeClass('spancc');
+		obj.find('span').addClass('spancc');
+		$('#storesnav view').addClass('backgg');
+		obj.removeClass('backgg');
+//		console.log($('#main_'+id));
+
+		$('.VerticalMain').animate({ scrollTop: scrollTop }, 1000);
+//		console.log($('scroll-view').find('.padding-top').children[1]);	
+	}
+	$('.VerticalMain').on('scroll',function(){
+
+		var obj;
+		for (var i=0;i<mycars.length;i++) {
+			if(mycars[i]<$('.VerticalMain').scrollTop()){
+				obj=$('#storesnav view:eq('+i+')');
+				$('#storesnav view').removeClass('text-green backgg');
+				obj.addClass('text-green');
+				$('#storesnav view span').removeClass('spancc');
+				obj.find('span').addClass('spancc');
+				$('#storesnav view').addClass('backgg');
+				obj.removeClass('backgg');
+			}
+		}			
+	})
+	function goodCategory(text){
+		parent.onclicksetjia('{:url("/home/good/SearchGoodList")}','id='+text);
+	}
+</script>

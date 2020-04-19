@@ -1,0 +1,147 @@
+{extend name="base" /}
+{block name="content"}
+
+<style>
+    .layui-badge{
+        min-width: 50px;
+    }
+</style>
+<div id="condition"></div>
+<table id="userTable" lay-filter="userTable"></table>
+
+<!-- 操作栏 -->
+<script type="text/html" id="barUser">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="view">用户订单</a>
+</script>
+<!--状态切换-->
+<script type="text/html" id="statusTpl">
+    <input type="checkbox" name="status" value="{{d.id}}" title="启用" lay-filter="status" {{ d.status == 1 ? 'checked' : '' }}>
+</script>
+
+<script type="text/html" id="one">
+    {{#  if(d.one_level_user_id === "" || d.one_level_user_id === null ||  d.one_level_user_id === 0){ }}
+    <span class="layui-badge layui-bg-blue">顶级</span>
+    {{#  } else { }}
+    <span class="layui-badge layui-bg-blue">{{d.one_level_user_id}}</span>
+    {{#  } }}
+</script>
+
+<script type="text/html" id="two">
+    {{#  if(d.two_level_user_id === "" || d.two_level_user_id === null ||  d.two_level_user_id === 0){ }}
+    <span class="layui-badge">顶级</span>
+    {{#  } else { }}
+    <span class="layui-badge">{{d.two_level_user_id}}</span>
+    {{#  } }}
+</script>
+
+<script type="text/html" id="code">
+    {{#  if(d.code === "" || d.code === null ||  d.code === 0){ }}
+    暂无
+    {{#  } else { }}
+    {{d.code}}
+    {{#  } }}
+</script>
+
+<script>
+    layui.extend({selectC: '{/}/static/lib/plugin/select-c/selectC'});
+    layui.use(['table','form','layer','selectC'], function(){
+        let table = layui.table,
+            form = layui.form,
+            layer = layui.layer,
+            selectC = layui.selectC,
+            $ = layui.$;
+
+        //渲染用户表格
+        table.render({
+            elem: '#userTable',
+            cols: [[
+                {field: 'id', title: '用户ID',align: 'center',width: 80},
+                {field: 'code', title: '用户代码',templet: '#code',align: 'center',width: 200},
+                {field: 'nick_name', title: '昵称',align: 'center'},
+                {field: 'phone', title: '电话',align: 'center',width: 120},
+                {field: 'money_sum', title: '佣金',align: 'center',width: 80},
+                {field: 'one_level_user_id', title: '一级ID',templet: '#one',align: 'center',width: 80},
+                {field: 'two_level_user_id', title: '二级ID',templet: '#two',align: 'center',width: 80},
+                {field:'status', title:'是否启用', width:110, templet: '#statusTpl', unresize: true,align: 'center'},
+                {fixed: 'right', title:'操作', toolbar: '#barUser', width:150,align: 'center'}
+            ]],
+            page: true,
+            id: 'userTable',
+            url: '{:url("admin/user/get")}'
+        });
+
+        //渲染搜索框
+        let condition  = selectC({
+            elem: "#condition",
+            number: 1,
+            reset:true,
+            options: [{ //select下拉选项
+                type: "input",//input
+                name: "id",//标签的name属性
+                elemName: "用户ID"//名称
+            },{ //select下拉选项
+                type: "input",//input
+                name: "code",//标签的name属性
+                elemName: "用户代码"//名称
+            },{ //select下拉选项
+                type: "input",//input
+                name: "real_name",//标签的name属性
+                elemName: "真实姓名"//名称
+            },{ //select下拉选项
+                type: "input",//input
+                name: "nick_name",//标签的name属性
+                elemName: "昵称"//名称
+            },{ //select下拉选项
+                type: "input",//input
+                name: "phone",//标签的name属性
+                elemName: "手机号"//名称
+            }],
+            search: function(data){
+                //执行重载表格
+                console.log(data);
+                table.reload('userTable', {
+                    page: {
+                        curr: 1
+                    }
+                    ,where: data
+                });
+            }
+        });
+
+        //监听状态切换操作
+        form.on('checkbox(status)', function(obj){
+            $.ajax({
+                method: 'POST',
+                url: '{:url("admin/user/toggleStatus")}',
+                data: {"id": obj.value, "status": obj.elem.checked === true ? 1:0},
+                success: function(res){
+                    if(res.code === 1) {
+                        layer.alert(res.message,function(index){
+                            obj.elem.checked = !obj.elem.checked;
+                            form.render();
+                            layer.close(index);
+                        });
+                    }else if( res.code === 0 ){
+                        layer.tips(obj.elem.checked === true? '已启用': '已禁用', obj.othis);
+                    }
+                },
+                error: function(){
+                    layer.alert("网络连接失败",function(index){
+                        obj.elem.checked = !obj.elem.checked;
+                        form.render();
+                        layer.close(index);
+                    });
+                }
+            })
+        });
+        //监听工具条
+        table.on('tool(userTable)', function(obj){
+            let layEvent = obj.event;
+
+            if(layEvent === 'view'){ //删除
+                x_admin_show("用户订单",'{:url("admin/user/order")}?user_id='+obj.data.id);
+            }
+        });
+    });
+</script>
+{/block}

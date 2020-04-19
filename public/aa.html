@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+<link href="/static/css/weui.min.css">
+<script href="/static/js/amount.js"></script>
+<script href="/static/js/jquery.min.js"></script>
+
+</head>
+<body>
+
+<h1>我的第一个 JavaScript 程序</h1>
+<p id="demo">这是一个段落</p>
+
+<button type="button" onclick="callpay()">显示日期</button>
+<div class="weui-navbar" style="padding: 10px 0;">
+    <img src="/static/images/banner.png" style="margin: 0 auto"/>
+</div>
+<button onclick="callpay()" class="weui-btn weui-btn_primary" style="margin: 20px auto;" type="button">付款给商家</button>
+
+<script>
+function displayDate(){
+alert("BBBB");
+	document.getElementById("demo").innerHTML=Date();
+	var amount = document.getElementById("amount").value;
+	console.log(amount);
+
+	console.log("VVVVV");
+}
+
+
+    function callpay() {
+	alert("BBBBSSDSDS");
+	alert(typeof WeixinJSBridge === "undefined");
+        if (typeof WeixinJSBridge === "undefined"){
+            if( document.addEventListener ){
+                document.addEventListener('WeixinJSBridgeReady', jsApiCall, false);
+            }else if (document.attachEvent){
+                document.attachEvent('WeixinJSBridgeReady', jsApiCall);
+                document.attachEvent('onWeixinJSBridgeReady', jsApiCall);
+            }
+        }else{
+            jsApiCall();
+        }
+		alert(1111111);
+    }
+function num(obj){
+        obj.value = obj.value.replace(/[^\d.]/g,""); //清除"数字"和"."以外的字符
+        obj.value = obj.value.replace(/^\./g,""); //验证第一个字符是数字
+        obj.value = obj.value.replace(/\.{2,}/g,"."); //只保留第一个, 清除多余的
+        obj.value = obj.value.replace(".","$#$").replace(/\./g,"").replace("$#$",".");
+        obj.value = obj.value.replace(/^(\-)*(\d+)\.(\d\d).*$/,'$1$2.$3'); //只能输入两个小数
+    }
+
+
+    function jsApiCall()
+    {
+		var amount = document.getElementById("amount").value;
+		console.log(amount);
+        if(!checkAmt(amount)){
+            return false;
+        }
+		console.log("VVVVV");
+        $.ajax({
+            type: 'POST',
+            data: {"store_id":"{$store_id}","amount": amount,openid: "{$openid}"},
+            url: '{:url("qrcode/index/getJsApiParameters")}',
+            success: function(result){
+				console.log(result);
+                if(result.code === 0){
+                    WeixinJSBridge.invoke(
+                        'getBrandWCPayRequest',
+                        $.parseJSON(result.data),
+                        function(res){
+                            if(res.err_msg === 'get_brand_wcpay_request:ok'){
+                                window.location.replace("{:url('qrcode/index/wxPaySuccess')}");
+                            }else if(res.err_msg === 'get_brand_wcpay_request:cancel'){
+                                alert("支付已取消");
+                            }else if(res.err_msg === 'get_brand_wcpay_request:fail'){
+                                alert("支付失败");
+                            }else {
+                                alert("支付失败，未知错误");
+                            }
+                        }
+                    );
+                }else {
+                    alert(result.message);
+                }
+            },
+            error: function(){
+                alert("提交请求失败");
+            }
+        })
+
+    }
+
+</script>
+</body>
+</html>

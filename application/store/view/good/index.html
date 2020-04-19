@@ -1,0 +1,128 @@
+{extend name="base" /}
+{block name="content"}
+<xblock>
+    <button class="layui-btn" onclick="x_admin_show('添加商品','{:url("store/good/add")}')"><i class="layui-icon"></i>添加商品</button>
+</xblock>
+<table id="goodTable" lay-filter="goodTable"></table>
+<!-- 操作栏 -->
+<script type="text/html" id="barGood">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    {{#  if(d.status === '已上架'){ }}
+    <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="pullOff">下架</a>
+    {{#  } }}
+    {{#  if(d.status === '已下架'){ }}
+    <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="pullOn">上架</a>
+    {{#  } }}
+    {{#  if(d.status !== '审核中'){ }}
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    {{#  } }}
+    {{#  if(d.status === '审核未通过'){ }}
+    <a class="layui-btn layui-btn-xs" lay-event="remark">审核意见</a>
+    {{#  } }}
+</script>
+
+<!--状态切换-->
+<script type="text/html" id="statusTpl">
+    <p>{{d.status}}</p>
+</script>
+
+<script>
+    layui.use('table', function(){
+        let table = layui.table,
+            form = layui.form,
+            layer = layui.layer,
+            $ = layui.$;
+        table.render({
+            elem: '#goodTable',
+            cols: [[
+                {field: 'id', hide: true},
+                {field: 'order', title: '排序',width:80,align: 'center'},
+                {field: 'name', title: '商品名称'},
+                {field: 'marketprice', title: '价格',width:80,align: 'center'},
+                {field: 'total', title: '库存',width:80,align: 'center'},
+                {field: 'sales', title: '销量',width:80,align: 'center'},
+                {field:'status', title:'状态', width:110, templet: '#statusTpl', unresize: true,align: 'center'},
+                {fixed: 'right', title:'操作', toolbar: '#barGood', width:300,align: 'center'}
+            ]],
+            id: 'good',
+            page: true,
+            url: '{:url("store/good/get")}'
+        });
+        //监听工具条
+        table.on('tool(goodTable)', function(obj){
+            let layEvent = obj.event;
+            if(layEvent === 'del'){ //删除
+                layer.confirm('真的删除么，删除后不可恢复', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: obj.data,
+                        url: '{:url("store/good/del")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+
+                });
+            }else if(layEvent === 'pullOff'){ //删除
+                layer.confirm('确定要下架该商品吗？', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: {id: obj.data.id},
+                        url: '{:url("store/good/pullOff")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                table.reload("good");
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+
+                });
+            }else if(layEvent === 'pullOn'){ //删除
+                layer.confirm('确定要上架该商品吗？', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: {id: obj.data.id},
+                        url: '{:url("store/good/pullOn")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                table.reload("good");
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+
+                });
+            }else if(layEvent === 'edit'){ //删除
+                x_admin_show('编辑商品','{:url("store/good/edit")}?id='+obj.data.id);
+            }else if(layEvent === 'remark'){ //删除
+                layer.alert('【'+obj.data.remark+'】，请修改！');
+            }
+        });
+    });
+</script>
+{/block}

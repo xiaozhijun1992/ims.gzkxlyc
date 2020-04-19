@@ -1,0 +1,151 @@
+<?php /*a:1:{s:70:"C:\xampp\htdocs\ims.gzkxly.com\application\index\view\index\about.html";i:1559641432;}*/ ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>快享立赢商城</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <script type="text/javascript" src="/static/lib/layui/layui.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/lib/layui/css/layui.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/indexMain.css">
+
+    <!--加载meta IE兼容文件-->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+<!-- header -->
+<div class="header_box">
+    <div class="header">
+        <ul class="app-header">
+            <li class="app-header-menuicon">
+                <i class="layui-icon layui-icon-more-vertical"></i>
+            </li>
+        </ul>
+        <h1 class="logo">
+            <a href="#"><img src="/static/images/banner.png" /></a>
+        </h1>
+        <div class="nav"  style="visibility: visible">
+            <a href="/">首页</a>
+            <a href="<?php echo url('index/index/join'); ?>">商家入驻</a>
+            <a href="<?php echo url('index/index/service'); ?>">服务</a>
+            <a href="<?php echo url('index/index/about'); ?>"  class="active">关于</a>
+            <a href="<?php echo url('store/index/index'); ?>" target="_blank">商家登录</a>
+        </div>
+        <ul class="layui-nav header-down-nav">
+            <li class="layui-nav-item"><a href="/" >首页</a></li>
+            <li class="layui-nav-item"><a href="<?php echo url('index/index/join'); ?>">商家入驻</a></li>
+            <li class="layui-nav-item"><a href="<?php echo url('index/index/service'); ?>">服务</a></li>
+            <li class="layui-nav-item"><a href="<?php echo url('index/index/about'); ?>" class="active">关于</a></li>
+            <li class="layui-nav-item"><a href="<?php echo url('store/index/index'); ?>" target="_blank">商家登录</a></li>
+        </ul>
+    </div>
+</div>
+<!-- end-header -->
+
+
+<!-- content -->
+<div class="about-content">
+    <div class="about-big-img">
+        <div class="text_box">
+            <div class="text">
+                <h3>我们的信念</h3>
+                <p>公司凭借丰富的运营经验,借助强大的技术开发实力,不断探索创新商业模式,推出了《爱扫码》聚合移动支付SaaS服务平台、《快享立盈》o2o分销商城系统平台、《共赢微助手》微信公众号开发管理服务平台等互联网服务产品,享有很高的市场美誉度,深受众多商家喜爱和得到广大用户好评。</p>
+            </div>
+        </div>
+    </div>
+    <div class="about-info">
+        <div class="img-texts">
+            <div class="item">
+                <div class="layui-fluid">
+                    <div class="layui-row">
+                        <div class="layui-col-xs12 layui-col-sm12 layui-col-md6 img-center">
+                            <img src="/static/images/index/gy_img1.jpg">
+                        </div>
+                        <div class="layui-col-xs12 layui-col-sm12 layui-col-md6">
+                            <div class="text">
+                                <h5>About us</h5>
+                                <h4>关于我们</h4>
+                                <p>贵州同城共赢网络科技有限公司(www.gztcgy.com)成立于2014年6月,坐落于中国凉都--六盘水,贵州省科技型企业,拥有专业的技术研发和互联网产品运营团队，致力于为广大商家用户和个人用户提供安全、便捷的优质互联网技术服务。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="coreTeam_box">
+            <div class="writebg"></div>
+            <div class="coreTeam">
+                <div class="layui-fluid">
+                    <h3>核心团队</h3>
+                    <h4>有了向心力，才有可能凝聚</h4>
+                    <div class="layui-row layui-col-space15">
+                        <div class="layui-col-xs12 layui-col-sm4 layui-col-md4">
+                            <div class="imgTxt">
+                                <img src="/static/images/index/gy_img2.jpg" alt="">
+                                <h6>产品总监</h6>
+                            </div>
+                        </div>
+                        <div class="layui-col-xs12 layui-col-sm4 layui-col-md4">
+                            <div class="imgTxt">
+                                <img src="/static/images/index/gy_img2.jpg" alt="">
+                                <h6>设计总监</h6>
+                            </div>
+                        </div>
+                        <div class="layui-col-xs12 layui-col-sm4 layui-col-md4">
+                            <div class="imgTxt">
+                                <img src="/static/images/index/gy_img2.jpg" alt="">
+                                <h6>制作总监</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- about-content -->
+<!-- end-content -->
+<!-- footer -->
+<div class="footer">
+    <div class="line"></div>
+    <p class="copyright">
+        Copyright 2014-2019  gzkxly.com  版权所有<br />
+        地址:贵州省六盘水市钟山区中路金泰大厦1802室<br />
+        TEL:0858-8699077<br />
+        <a href="http://beian.miit.gov.cn" style="color: white;" target="_blank">黔ICP备15016690号-6</a>
+    </p>
+</div>
+<!-- end-footer -->
+<script>
+    layui.use(['carousel','jquery','element'],function(){
+        let carousel = layui.carousel,$ = layui.$;
+        //建造实例
+        carousel.render({
+            elem: '#carousel'
+            ,width: '100%' //设置容器宽度
+            ,arrow: 'always'
+            ,height:'auto'
+        });
+        let appHeaderMenuion = '.app-header-menuicon';
+        let headerDownNav = '.header-down-nav';
+        let carouselImg = '.imgbox div.layui-this';
+        let imgHeight = '.imgH';
+        $(appHeaderMenuion).on('click',function(){
+            $(headerDownNav).toggleClass('down-nav')
+        });
+        let imgH = $(carouselImg).outerHeight();
+        $(imgHeight).css('height',imgH+'px');
+        window.onresize = function () {
+            let imgH = $(carouselImg).outerHeight();
+            $(imgHeight).css('height',imgH+'px')
+        };
+    });
+</script>
+</body>
+</html>

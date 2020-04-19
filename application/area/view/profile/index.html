@@ -1,0 +1,90 @@
+{extend name="base" /}
+{block name="content"}
+<form class="layui-form">
+    <div class="layui-form-item">
+        <label class="layui-form-label">代理ID</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" disabled value="{$area.id}">
+        </div>
+        <label class="layui-form-label">用户编码</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" disabled value="{$area.user.code}">
+        </div>
+        <label class="layui-form-label">真实姓名</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" disabled value="{$area.real_name}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">性别</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" disabled value="{$area.sex}">
+        </div>
+        <label class="layui-form-label">手机</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" disabled value="{$area.phone}">
+        </div>
+        <label class="layui-form-label">身份证号</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" disabled value="{$area.id_no}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">详细地址</label>
+        <div class="layui-input-block">
+            <input type="text" class="layui-input" disabled value="{$area.address}">
+        </div>
+    </div>
+</form>
+<hr class="layui-bg-orange" >
+<div class="layui-container" style="margin: 0;">
+    <div class="layui-row" id="img">
+        <div class="layui-col-md6">
+            <div>代理协议书：</div>
+            <img src="/{$area.agreement}" style="width: 50%;" title="点击查看大图" data-id="1">
+        </div>
+        <div class="layui-col-md6">
+            <div>身份证扫描件：</div>
+            <img src="/{$area.id_photo}" style="width: 50%;" title="点击查看大图" data-id="2">
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use('layer',function(){
+        let layer = layui.layer,
+            $ = layui.$;
+        $("img").on('click',function(data){
+            layer.photos({
+                photos: '#img',
+                anim: 0
+            })
+        });
+        $(document).on("mousewheel DOMMouseScroll", ".layui-layer-phimg img", function(e) {
+            var delta = (e.originalEvent.wheelDelta && (e.originalEvent.wheelDelta > 0 ? 1 : -1)) || // chrome & ie
+                (e.originalEvent.detail && (e.originalEvent.detail > 0 ? -1 : 1)); // firefox
+            var imagep = $(".layui-layer-phimg").parent().parent();
+            var image = $(".layui-layer-phimg").parent();
+            var h = image.height();
+            var w = image.width();
+            if(delta > 0) {
+                if(h < (window.innerHeight * 2)) {
+                    h = h * 1.05;
+                    w = w * 1.05;
+                }
+            } else if(delta < 0) {
+                if(h > 100) {
+                    h = h * 0.95;
+                    w = w * 0.95;
+                }
+            }
+            imagep.css("top", (window.innerHeight - h) / 2);
+            imagep.css("left", (window.innerWidth - w) / 2);
+            image.height(h);
+            image.width(w);
+            imagep.height(h);
+            imagep.width(w);
+        });
+    })
+</script>
+{/block}

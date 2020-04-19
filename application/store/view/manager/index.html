@@ -1,0 +1,66 @@
+{extend name="base" /}
+{block name="content"}
+
+<div class="layui-form">
+    <table class="layui-table">
+        <colgroup>
+            <col width="100">
+            <col>
+        </colgroup>
+        <thead>
+        <tr>
+            <th colspan="2">服务商信息</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>姓名</td>
+            <td>{$area_manager.real_name}</td>
+        </tr>
+        <tr>
+            <td>电话</td>
+            <td>{$area_manager.phone}</td>
+        </tr>
+        <tr>
+            <td>地址</td>
+            <td>{$area_manager.address}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="layui-form">
+    <table class="layui-table">
+        <colgroup>
+            <col width="100">
+            <col>
+        </colgroup>
+        <thead>
+        <tr>
+            <th colspan="2">业务员信息</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>姓名</td>
+            <td>{$saleman.name}</td>
+        </tr>
+        <tr>
+            <td>电话</td>
+            <td>{$saleman.phone}</td>
+        </tr>
+        <tr>
+            <td>地址</td>
+            <td>{$saleman.address}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+
+<script>
+    layui.use('table', function(){
+        let table = layui.table;
+    });
+</script>
+{/block}

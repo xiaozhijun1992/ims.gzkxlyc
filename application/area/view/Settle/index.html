@@ -1,0 +1,39 @@
+{extend name="base" /}
+{block name="content"}
+<table id="storeSettleTable" lay-filter="storeSettleTable"></table>
+<!--状态切换-->
+<script type="text/html" id="statusTpl">
+    {{#  if(d.status == 1){ }}
+    <span class="layui-badge">已结算</span>
+    {{#  } else { }}
+    <span class="layui-badge layui-bg-orange">未结算</span>
+    {{#  } }}
+</script>
+
+
+<script>
+    layui.use('table', function(){
+        let table = layui.table,
+            form = layui.form,
+            layer = layui.layer,
+            $ = layui.$;
+        let tableIns = table.render({
+            elem: '#storeSettleTable',
+            cols: [[
+                {field: 'id', title: "ID"},
+                {field: 'amount',title: '金额'},
+                {field: 'area',title: '区域',templet: "<div>{{d.area.desc}}</div>"},
+                {field: 'bank',title: '银行'},
+                {field: 'name',title: '收款人'},
+                {field: 'account',title: '收款账号'},
+                {field: 'settle_no', title: '银行结算单'},
+                {field: 'settle_date',title: '结算日期'},
+                {field: 'create_time',title: '创建时间'},
+                {field: 'status', title: '状态',templet: '#statusTpl'},
+            ]],
+            page: true,
+            url: '{:url("area/settle/get")}'
+        });
+    });
+</script>
+{/block}

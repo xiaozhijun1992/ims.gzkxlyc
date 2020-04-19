@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, height=device-height,user-scalable=no, initial-scale=1.0" />
+		<title></title>
+		{load href="/static/css/weweb.min.css" /} {load href="/static/css/app.css" /} {load href="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js" /} {load href="/static/lib/layui/layui.js" /} {load href="/static/lib/layui/css/layui.css" /} {load href="/static/js/render.js"
+		/}
+	</head>
+	<style type="text/css">
+		form input{
+			cursor: auto;
+		    height: 1.4rem;
+		    text-overflow: clip;
+		    overflow: hidden;
+		    white-space: nowrap;
+		    font-family: UICTFontTextStyleBody;
+		    min-height: 1.4rem;
+		    border: none;
+		}
+		.cu-btns{
+			position: relative;
+		    border: 0.5px;
+		    display: -webkit-inline-box;
+		    display: -webkit-inline-flex;
+		    display: -ms-inline-flexbox;
+		    display: inline-flex;
+		    -webkit-box-align: center;
+		    -webkit-align-items: center;
+		    -ms-flex-align: center;
+		    align-items: center;
+		    -webkit-box-pack: center;
+		    -webkit-justify-content: center;
+		    -ms-flex-pack: center;
+		    justify-content: center;
+		    -webkit-box-sizing: border-box;
+		    box-sizing: border-box;
+		    padding: 0 12px;
+		    font-size: 11px;
+		    height: 27px;
+		    line-height: 1;
+		    text-align: center;
+		    text-decoration: none;
+		    overflow: visible;
+		    margin-left: initial;
+		    -webkit-transform: translate(0.5px,0.5px);
+		    -ms-transform: translate(0.5px,0.5px);
+		    transform: translate(0.5px,0.5px);
+		    margin-right: initial;
+		}
+	</style>
+	<body>
+	
+		<body>
+			<div class="scrollable">
+				<div id="storeshtml">
+
+					<view>
+						<div class="head">
+							<div class="jshook-ws-head" style="display: flex; background-color: #fa922f;color: #fff;">
+								<div class="head-back jshook-ws-head-back" style="display: none;">
+
+								</div>
+								<div class="head-home jshook-ws-head-home" onclick="onclickset()" style="display: flex;font-size: 14px;">
+									<div class="cuIcon-back cuIcon-back">
+
+									</div>返回
+								</div>
+								<h3 class="head-title jshook-ws-head-title" style="color: black;">
+    <i class="head-title-loading" style="display: none;"></i>
+    <span style="color: #fff;font-size: 16px;width: 100%;font-weight: 100;">绑定手机号</span>
+  </h3>
+								<div class="head-option jshook-ws-head-option"></div>
+							</div>
+						</div>
+					</view>
+					<div class="">
+						<form>
+							
+							<view class="cu-form-group" style="line-height: 43px;">
+								<view class="title" style="width: 68px;font-size: 14px;">手机号码</view>
+								<input name="phone" id="phone" style="" value="<?=$_GET['phone']?>"  placeholder="请输入手机号" />
+								<div class="shadow" style="width: 35%;"></div>
+							</view>
+							<view class="cu-form-group" style="line-height: 43px;">
+								<view class="title" style="width: 68px;font-size: 14px;">验 证 码</view>
+								<input name="input" id="smscode" style="" value=""  placeholder="请输入验证码" />
+								<div class="cu-btn bg-green shadow smscode" style="    width: 35%;"><span id="clock">
+									
+								</span><span id="code_span">
+									获取验证码
+								</span></div>
+							</view>
+						</form>
+						<view class="padding flex flex-direction">
+							<button class="cu-btns  lg " style="">绑定</button>
+						</view>
+						</view>
+					</div>
+		</body>
+
+</html>
+<script type="text/javascript">
+	var no;
+	window.onload=function(){
+		parent.$('#loads').hide();
+	}
+	
+	$('.lgc').on('click',function(){
+		var phone=$('#phone').val();
+		var code=$('#smscode').val();
+		var user_id=parent.user_id;
+		$.get('/api/index/bindPhone',{phone,code,no,user_id},function(res){
+			if(res.data){
+				alert(res.message);
+				parent.phone=phone;
+				parent.onclickset();
+			}else{
+				alert(res.message);
+			}
+		})
+		
+	})
+	var smscodes=0;
+	
+	$('.smscode').on('click',function(){
+		if(smscodes==1){
+			return false;
+		}
+		var phone=$('#phone').val();
+		if(!phone){
+			alert('请输入手机号码');
+		}
+		$.get('/api/index/getSmsCode',{phone:phone},function(res){
+			if(res.code=0){
+				no=res.data;
+				alert(res.message);
+				$('.cu-btns').addClass('cu-btn bg-green lgc');
+				$('.lgc').removeClass('cu-btns');
+				$('#code_span').text('秒后重新获取');
+				$('.smscode').removeClass('bg-green');
+				smscodes=1;
+				start();
+			}else{
+				alert(res.message);
+			}
+		})
+	})
+	function onclickset(){
+		parent.onclickset();
+	}
+	var timer;
+	var time=60;
+	function start(){
+		
+	   //设置定时器（方法的实现，毫秒数）
+	    timer=setInterval(function(){
+	   	
+	    var c=document.getElementById("clock");
+	    c.innerHTML=time-1;
+	    time=time-1;
+	    if(time<1){
+	    	stop();
+	    }
+	   },1000);
+  	}
+	  function stop(){
+	   //暂停 清楚定时器
+	   clearInterval(timer);
+	   smscodes=0;
+	   $('.smscode').addClass('bg-green');
+	   $('#code_span').text('获取验证码');
+	   $('#clock').text(' ');
+	   
+	  }
+</script>

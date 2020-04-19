@@ -1,0 +1,66 @@
+{extend name="window" /}
+
+{block name="content"}
+<link rel="stylesheet" href="/static/lib/plugin/form-selects/formSelects-v4.css" />
+<form class="layui-form">
+    <div class="layui-form-item">
+        <label for="uid" class="layui-form-label"><span class="x-red">*</span>用户ID</label>
+        <div class="layui-input-inline">
+            <select name="uid" xm-select="uidSelect" id="uid" xm-select-radio="">
+
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="group" class="layui-form-label"><span class="x-red">*</span>权限组</label>
+        <div class="layui-input-block">
+            <select name="group_id" xm-select="groupSelect" id="group" xm-select-radio="">
+
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="L_add" class="layui-form-label">
+        </label>
+        <button id="L_add" class="layui-btn" lay-filter="add" lay-submit="">
+            增加
+        </button>
+    </div>
+</form>
+<script>
+    layui.extend({'formSelects': '{/}/static/lib/plugin/form-selects/formSelects-v4'});
+    layui.use(['form','layer','formSelects'], function(){
+        let $ = layui.$,
+            form = layui.form,
+            formSelects = layui.formSelects,
+            layer = layui.layer;
+
+        formSelects.data('uidSelect', 'server', {
+            url: '{:url("admin/auth/getMemberFormTable")}'
+        });
+        formSelects.data('groupSelect', 'server', {
+            url: '{:url("admin/auth/getGroupFormTable")}'
+        });
+        //监听提交
+        form.on('submit(add)', function(data){
+            console.log(data);
+            $.ajax({
+                type: 'POST',
+                data: data.field,
+                url: "{:url('admin/auth/addAuthGroupAccess')}",
+                success: function(res){
+                    if(res.code === 0) {
+                        layer.alert(res.message, {icon: 6}, function () {
+                            x_admin_close();
+                            parent.layui.table.reload('authGroupAccessTable');
+                        });
+                    }else {
+                        layer.alert(res.message);
+                    }
+                }
+            });
+            return false;
+        });
+    });
+</script>
+{/block}

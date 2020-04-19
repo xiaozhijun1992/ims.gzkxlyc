@@ -1,0 +1,84 @@
+{extend name="window" /}
+
+{block name="content"}
+<form class="layui-form">
+    <div class="layui-form-item">
+        <input name="user_id" id="user_id" type="hidden">
+        <label for="L_name" class="layui-form-label"><span class="x-red">*</span>会员</label>
+        <div class="layui-input-inline">
+            <input type="text" id="L_name" required="" autocomplete="off" class="layui-input" placeholder="员工真实姓名">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="L_text" class="layui-form-label"><span class="x-red">*</span>姓名</label>
+        <div class="layui-input-inline">
+            <input type="text" id="L_text" name="name" required="" autocomplete="off" class="layui-input" placeholder="员工真实姓名">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="phone" class="layui-form-label">
+            <span class="x-red">*</span>手机号
+        </label>
+        <div class="layui-input-inline">
+            <input type="text" id="phone" name="phone" required="" autocomplete="off" class="layui-input" placeholder="11位的手机号">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="L_add" class="layui-form-label">
+        </label>
+        <button id="L_add" class="layui-btn" lay-filter="add" lay-submit="">
+            增加
+        </button>
+    </div>
+</form>
+<script>
+    layui.extend({'tableSelect': '{/}/static/lib/plugin/table-select/table-select'});
+    layui.use(['form','layer','tableSelect'], function(){
+        let $ = layui.$,
+            form = layui.form,
+            tableSelect = layui.tableSelect,
+            layer = layui.layer;
+        tableSelect.render({
+            elem: '#L_name',
+            checkedKey: 'id',
+            searchKey: 'phone',
+            searchPlaceholder: '手机号搜索',
+            table: {	//定义表格参数，与LAYUI的TABLE模块一致，只是无需再定义表格elem
+                url:'{:url("admin/user/get")}',
+                cols: [[
+                    {type: 'radio' },
+                    {field: 'id', title: '用户ID'},
+                    {field: 'code', title: '用户代码'},
+                    {field: 'real_name',title: '真实姓名'},
+                    {field: 'nick_name',title: '昵称'},
+                    {field: 'phone',title: '手机号'},
+                ]]
+            },
+            done: function (elem, data) {
+                $("#user_id").val(data.data[0].id);
+                $("#L_name").val(data.data[0].nick_name);
+            }
+        });
+        //监听提交
+        form.on('submit(add)', function(data){
+            console.log(data);
+            $.ajax({
+                type: 'POST',
+                data: data.field,
+                url: "{:url('admin/member/insert')}",
+                success: function(res){
+                    if(res.code === 0) {
+                        layer.alert(res.message, {icon: 6}, function () {
+                            x_admin_close();
+                            x_admin_father_reload();
+                        });
+                    }else {
+                        layer.alert(res.message);
+                    }
+                }
+            });
+            return false;
+        });
+    });
+</script>
+{/block}

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+    <title>快享立赢</title>
+    <!-- 引入 WeUI -->
+    {load href="/static/css/weui.min.css" /}
+    {load href="/static/js/amount.js" /}
+	{load href="/static/js/jquery.min.js" /}
+</head>
+<body>
+<!-- 使用 -->
+<div class="weui-navbar" style="padding: 10px 0;">
+    <img src="/static/images/banner.png" style="margin: 0 auto"/>
+</div>
+<div style="text-align: center; margin: 20px 0;color: red;font-size: 20px">{$store_name}</div>
+<div class="weui-cells weui-cells_form">
+    <div class="weui-cell">
+        <div class="weui-cell__hd"><label class="weui-label">金额</label></div>
+        <div class="weui-cell__bd">
+            <input id="amount" class="weui-input" onkeyup="num(this)" type="number" placeholder="请输入付款金额"/>
+        </div>
+    </div>
+</div>
+<button onclick="callpay()" class="weui-btn weui-btn_primary" style="margin: 20px auto;" type="button">付款给商家</button>
+
+
+<div class="weui-footer" style="position: fixed; bottom: 20px; width: 100%">
+    <p class="weui-footer__links">
+        <a href="javascript:void(0);" class="weui-footer__link">快享立赢商城</a>
+    </p>
+    <p class="weui-footer__text">Copyright © 2016-2019 贵州同城共赢网络科技有限公司</p>
+</div>
+<script>
+    $(function(){
+        var h=$(window).height();
+        $(window).resize(function() {
+            if($(window).height()<h){
+                $('.weui-footer').hide();
+            }else{
+                $('.weui-footer').show();
+            }
+        });
+    });
+    function num(obj){
+        obj.value = obj.value.replace(/[^\d.]/g,""); //清除"数字"和"."以外的字符
+        obj.value = obj.value.replace(/^\./g,""); //验证第一个字符是数字
+        obj.value = obj.value.replace(/\.{2,}/g,"."); //只保留第一个, 清除多余的
+        obj.value = obj.value.replace(".","$#$").replace(/\./g,"").replace("$#$",".");
+        obj.value = obj.value.replace(/^(\-)*(\d+)\.(\d\d).*$/,'$1$2.$3'); //只能输入两个小数
+    }
+    function callpay() {
+        if (typeof WeixinJSBridge === "undefined"){
+            if( document.addEventListener ){
+                document.addEventListener('WeixinJSBridgeReady', jsApiCall, false);
+            }else if (document.attachEvent){
+                document.attachEvent('WeixinJSBridgeReady', jsApiCall);
+                document.attachEvent('onWeixinJSBridgeReady', jsApiCall);
+            }
+        }else{
+            jsApiCall();
+        }
+    }
+
+    function jsApiCall()
+    {
+		var amount = document.getElementById("amount").value;
+        $.ajax({
+            type: 'POST',
+            data: {"store_id":"{$store_id}","amount": amount,openid: "{$openid}"},
+            url: '{:url("qrcode/index/getJsApiParameters")}',
+            success: function(result){
+				console.log(result);
+                if(result.code === 0){
+                    WeixinJSBridge.invoke(
+                        'getBrandWCPayRequest',
+                        $.parseJSON(result.data),
+                        function(res){
+                            if(res.err_msg === 'get_brand_wcpay_request:ok'){
+                                window.location.replace("{:url('qrcode/index/wxPaySuccess')}");
+                            }else if(res.err_msg === 'get_brand_wcpay_request:cancel'){
+                                alert("支付已取消");
+                            }else if(res.err_msg === 'get_brand_wcpay_request:fail'){
+                                alert("支付失败");
+                            }else {
+                                alert("支付失败，未知错误");
+                            }
+                        }
+                    );
+                }else {
+                    alert(result.message);
+                }
+            },
+            error: function(){
+                alert("提交请求失败");
+            }
+        })
+
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+{extend name="base" /}
+{block name="content"}
+<xblock>
+    <button class="layui-btn" onclick="x_admin_show('添加发件地址','{:url("store/sender/add")}',600,450)"><i class="layui-icon"></i>添加</button>
+</xblock>
+<table id="senderTable" lay-filter="senderTable"></table>
+<!-- 操作栏 -->
+<script type="text/html" id="barSender">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<!--状态切换-->
+<script type="text/html" id="statusTpl">
+    <input type="checkbox" name="status" value="{{d.id}}" title="启用" lay-filter="status" {{ d.status == 1 ? 'checked' : '' }}>
+</script>
+
+<script>
+    layui.use('table', function(){
+        let table = layui.table,
+            form = layui.form,
+            layer = layui.layer,
+            $ = layui.$;
+        table.render({
+            elem: '#senderTable',
+            cols: [[
+                {field: 'id', hide: true},
+                {field: 'name',title: '发件人',edit: 'text'},
+                {field: 'mobile', title: '发件人手机',edit: 'text'},
+                {field: 'province_name', title: '发件省',edit: 'text'},
+                {field: 'city_name', title: '发件市',edit: 'text'},
+                {field: 'exp_area_name', title: '发件县区',edit: 'text'},
+                {field: 'address', title: '详细地址',edit: 'text'},
+                {field:'status', title:'状态', width:110, templet: '#statusTpl', unresize: true},
+                {fixed: 'right', title:'操作', toolbar: '#barSender', width:150}
+            ]],
+            page: true,
+            url: '{:url("store/sender/get")}'
+        });
+        //监听状态切换操作
+        form.on('checkbox(status)', function(obj){
+            $.ajax({
+                method: 'POST',
+                url: '{:url("store/sender/toggleStatus")}',
+                data: {"id": obj.value, "status": obj.elem.checked === true ? 1:0},
+                success: function(res){
+                    if(res.code === 1) {
+                        layer.alert(res.message);
+                    }else if( res.code =0 ){
+                        layer.tips(obj.elem.checked === true? '已禁用': '已启用', obj.othis);
+                    }
+                },
+                error: function(){
+                    layer.alert("网络连接失败");
+                }
+            })
+        });
+        //监听工具条
+        table.on('tool(senderTable)', function(obj){
+            let layEvent = obj.event;
+
+            if(layEvent === 'del'){ //删除
+                layer.confirm('真的删除么', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: obj.data,
+                        url: '{:url("store/sender/del")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+
+                });
+            }
+        });
+
+        table.on('edit(senderTable)', function(obj){
+            console.log(obj);
+            $.ajax({
+                type: 'POST',
+                data: {"id": obj.data.id,"field": obj.field, "value": obj.value},
+                url: '{:url("store/sender/change")}',
+                success: function(res){
+                    if(res.code !== 0){
+                        layer.alert(res.message);
+                    }
+                },
+                error: function(){
+                    layer.alert("请求修改失败！");
+                }
+            })
+        });
+    });
+</script>
+{/block}

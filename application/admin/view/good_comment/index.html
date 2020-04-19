@@ -1,0 +1,120 @@
+{extend name="base" /}
+{block name="content"}
+<div id="condition"></div>
+<table id="goodCommentTable" lay-filter="goodCommentTable"></table>
+<!-- 操作栏 -->
+<script type="text/html" id="bargoodCommentTable">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<!--状态切换-->
+<script type="text/html" id="statusTpl">
+    <input type="checkbox" name="status" value="{{d.id}}" title="显示" lay-filter="status" {{ d.status == 1 ? 'checked' : '' }}>
+</script>
+
+<script>
+    layui.extend({selectC: '{/}/static/lib/plugin/select-c/selectC'});
+    layui.use(['table','form','layer','selectC'], function(){
+        let table = layui.table,
+            form = layui.form,
+            layer = layui.layer,
+            selectC = layui.selectC,
+            $ = layui.$;
+        table.render({
+            elem: '#goodCommentTable',
+            cols: [[
+                {field: 'id', hide: true},
+                {field: 'good_id', title: '商品ID',align: 'center',width: 80},
+                {field: 'user_id', title: '用户ID',align: 'center',width: 80},
+                {field: 'comment',title: '内容'},
+                {field:'status', title:'是否显示',templet: '#statusTpl', unresize: true,align: 'center',width: 150},
+                {fixed: 'right', title:'操作', toolbar: '#bargoodCommentTable', width:100,align: 'center'}
+            ]],
+            page: true,
+            id: 'goodCommentTable',
+            url: '{:url("admin/good_comment/get")}'
+        });
+        let condition  = selectC({
+            elem: "#condition",
+            number: 1,
+            reset: true,
+            options: [{ //select下拉选项
+                type: "input",//input
+                name: "good_id",//标签的name属性
+                elemName: "商品ID"//名称
+            },{ //select下拉选项
+                type: "input",//input
+                name: "user_id",//标签的name属性
+                elemName: "用户ID"//名称
+            },{ //select下拉选项
+                type: "input",//input
+                name: "comment",//标签的name属性
+                elemName: "评论内容"//名称
+            }],
+            search: function(data){
+                //执行重载表格
+                console.log(data);
+                table.reload('goodCommentTable', {
+                    page: {
+                        curr: 1
+                    }
+                    ,where: data
+                });
+            }
+        });
+        //监听状态切换操作
+        form.on('checkbox(status)', function(obj){
+            $.ajax({
+                method: 'POST',
+                url: '{:url("admin/good_comment/toggleStatus")}',
+                data: {"id": obj.value, "status": obj.elem.checked === true ? 1:0},
+                success: function(res){
+                    if(res.code === 1) {
+                        layer.alert(res.message,function(index){
+                            obj.elem.checked = !obj.elem.checked;
+                            form.render();
+                            layer.close(index);
+                        });
+                    }else if( res.code === 0 ){
+                        layer.tips(obj.elem.checked === true? '已显示': '已屏蔽', obj.othis);
+                    }
+                },
+                error: function(){
+                    layer.alert("网络连接失败",function(index){
+                        obj.elem.checked = !obj.elem.checked;
+                        form.render();
+                        layer.close(index);
+                    });
+                }
+            })
+        });
+        //监听工具条
+        table.on('tool(goodCommentTable)', function(obj){
+            let layEvent = obj.event;
+            if(layEvent === 'del'){ //删除
+                layer.confirm('真的删除么', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: {id:obj.data.id},
+                        url: '{:url("admin/good_comment/del")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+
+                });
+            }
+        });
+    });
+</script>
+{/block}

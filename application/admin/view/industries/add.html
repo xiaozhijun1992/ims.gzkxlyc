@@ -1,0 +1,153 @@
+{extend name="window" /}
+
+{block name="content"}
+<form class="layui-form">
+    <div class="layui-form-item">
+        <label class="layui-form-label">行业名称</label>
+        <div class="layui-input-inline">
+            <input type="text" name="name" required="" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <span class="x-red">*</span>行业名称
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">Banner图片</label>
+        <div class="layui-input-inline">
+            <input type="text" id="img" name="img" required="" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <a class="layui-btn" id="img_upload">上传</a>
+            <span class="x-red">*</span> 图片尺寸：100 x 100,大小不能超过200KB
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">平台提点比例</label>
+        <div class="layui-input-inline">
+            <input type="text" name="platform" required="" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <span class="x-red">*</span>（‰）
+        </div>
+        <label class="layui-form-label">股东分红比例</label>
+        <div class="layui-input-inline">
+            <input type="text" name="shareholder" required="" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <span class="x-red">*</span>（‰）
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">区域代理佣金比例</label>
+        <div class="layui-input-inline">
+            <input type="text" name="area" required="" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <span class="x-red">*</span>（‰）
+        </div>
+        <label class="layui-form-label">区域经理佣金比例</label>
+        <div class="layui-input-inline">
+            <input type="text" name="manager" required="" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <span class="x-red">*</span>（‰）
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">自购佣金比例</label>
+        <div class="layui-input-inline">
+            <input type="text" name="self" required="" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <span class="x-red">*</span>（‰）
+        </div>
+        <label class="layui-form-label">一级分销佣金比例</label>
+        <div class="layui-input-inline">
+            <input type="text" name="one" required="" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <span class="x-red">*</span>（‰）
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">二级分销佣金比例</label>
+        <div class="layui-input-inline">
+            <input type="text" name="two" required="" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <span class="x-red">*</span>（‰）
+        </div>
+        <label for="L_order" class="layui-form-label">
+            <span class="x-red">*</span>排序
+        </label>
+        <div class="layui-input-inline">
+            <input type="text" id="L_order" name="sort" required=""
+                   autocomplete="off" class="layui-input" lay-verify="number">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="L_add" class="layui-form-label">
+        </label>
+        <button id="L_add" class="layui-btn" lay-filter="add" lay-submit="">
+            增加
+        </button>
+    </div>
+</form>
+<script>
+    layui.use(['form','layer','upload'], function(){
+        let $ = layui.$,
+            form = layui.form,
+            layer = layui.layer,
+            upload = layui.upload;
+
+        //监听提交
+        form.on('submit(add)', function(data){
+            console.log(data);
+            $.ajax({
+                type: 'POST',
+                data: data.field,
+                url: "{:url('admin/industries/insert')}",
+                success: function(res){
+                    if(res.code === 0) {
+                        layer.alert(res.message, {icon: 6}, function () {
+                            x_admin_close();
+                            x_admin_father_reload();
+                        });
+                    }else {
+                        layer.alert(res.message);
+                    }
+                }
+            });
+            return false;
+        });
+        let imgUpload = upload.render({
+            elem: '#img_upload' //绑定元素
+            ,url: '{:url("admin/industries/upload")}' //上传接口
+            ,field: 'image'
+            ,size: 200
+            ,before: function(obj){
+                //预读本地文件示例，不支持ie8
+                obj.preview(function(index, file, result){
+                    $('#preview').attr('src', result); //图片链接（base64）
+                });
+            }
+            ,choose: function(){
+                layer.load();
+            }
+            ,done: function(res){
+                if(res.code !== 0){
+                    layer.closeAll("loading")
+                    layer.alert(res.message);
+                }else {
+                    $("#img").val(res.data);
+                    layer.closeAll("loading")
+                }
+            }
+            ,error: function(){
+                layer.closeAll("loading")
+                layer.alert("请求异常！");
+            }
+        });
+    });
+</script>
+{/block}

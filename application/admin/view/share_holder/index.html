@@ -1,0 +1,82 @@
+{extend name="base" /}
+{block name="content"}
+
+<xblock>
+    <button class="layui-btn" onclick="x_admin_show('添加股东','{:url("admin/share_holder/add")}',800,500)"><i class="layui-icon"></i>添加</button>
+</xblock>
+<table id="shareHolder" lay-filter="shareHolder"></table>
+
+<!-- 操作栏 -->
+<script type="text/html" id="barShareHolder">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+
+<script>
+    layui.use('table', function(){
+        let table = layui.table,
+            form = layui.form,
+            layer = layui.layer,
+            $ = layui.$;
+        table.render({
+            elem: '#shareHolder',
+            cols: [[
+                {field: 'id', title: 'ID'},
+                {field: 'user_id',title: "对用用户ID"},
+                {field: 'name', title: '姓名'},
+                {field: 'phone', title: '电话号码',edit: 'text'},
+                {field: 'id_no', title: '身份证号'},
+                {field: 'create_time', title: '加入时间'},
+                {fixed: 'right', title:'操作', toolbar: '#barShareHolder', width:150}
+            ]],
+            url: '{:url("admin/share_holder/get")}'
+        });
+        //监听工具条
+        table.on('tool(shareHolder)', function(obj){
+            let layEvent = obj.event;
+
+            if(layEvent === 'del'){ //删除
+                layer.confirm('真的删除么？', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: obj.data,
+                        url: '{:url("admin/share_holder/del")}',
+                        success: function(res){
+                            layer.alert(res.message);
+                            if(res.code === 0) {
+                                obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+                    return false;
+                });
+            }
+        });
+
+        table.on('edit(shareHolder)', function(obj){
+            $.ajax({
+                type: 'POST',
+                data: {"id": obj.data.id, "field": obj.field, "value": obj.value},
+                url: '{:url("admin/share_holder/change")}',
+                success: function(res){
+                    console.log(res);
+                    if(res.code !== 0){
+                        layer.alert(res.message);
+                    }else {
+                        layer.alert(res.message);
+                    }
+                },
+                error: function(){
+                    layer.alert("请求修改失败！");
+                }
+            })
+        });
+    });
+</script>
+{/block}

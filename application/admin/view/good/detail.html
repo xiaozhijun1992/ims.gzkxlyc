@@ -1,0 +1,514 @@
+{extend name="window" /}
+
+{block name="content"}
+<script type="text/javascript" charset="utf-8" src="/static/ueditor/ueditor.config.js"></script>
+<script type="text/javascript" charset="utf-8" src="/static/ueditor/ueditor.all.min.js"> </script>
+<!--建议手动加在语言，避免在ie下有时因为加载语言失败导致编辑器加载失败-->
+<!--这里加载的语言文件会覆盖你在配置项目里添加的语言类型，比如你在配置项目里配置的是英文，这里加载的中文，那最后就是中文-->
+<script type="text/javascript" charset="utf-8" src="/static/ueditor/lang/zh-cn/zh-cn.js"></script>
+<style>
+    .layui-input-inline{
+        float: left;
+        margin-right: 20px;
+    }
+
+    .left-title {
+        line-height: 35px;
+        text-align: center;
+        background-color: #63BA79;
+        color: white
+    }
+
+    .form-btn {
+        margin-top: 4px;
+    }
+
+    .layui-form-switch {
+        margin-top: 3px;
+    }
+
+    .layui-form-checkbox{
+        margin-top: 8px;
+    }
+    .spe {
+        margin: 20px 0;
+    }
+
+    #specs {
+        margin: 20px 0;
+    }
+    .spec-item {
+        border: 1px solid #e7eaec;
+        margin: 15px 15px 0 15px;
+        padding: 20px 0px;
+    }
+
+    .spec-item-item .layui-input {
+        width: 90%;
+        float: right;
+    }
+
+    .layui-table th {
+        text-align: center;
+    }
+</style>
+<form class="layui-form">
+<div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+    <ul class="layui-tab-title">
+        <li class="layui-this">基本</li>
+        <li>规格/库存</li>
+        <li>商品参数</li>
+        <li>商品详情</li>
+        <li>购买权限</li>
+    </ul>
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-md3">
+                    <div class="left-title">基本信息</div>
+                </div>
+                <div class="layui-col-md9">
+                    <div style="background-color: #F8F8F8">
+                        <div class="layui-input-item">
+                            <label class="layui-form-label">排序</label>
+                            <div class="layui-input-inline">
+                                <input name="order" type="text" class="layui-input" title="排序" value="{$good.order|default=''}" disabled>
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">
+                                <span class="x-red">*</span>数字越大，排名越靠前,如果为空，默认排序方式为创建时间
+                            </div>
+                        </div>
+                        <div class="layui-input-item">
+                            <label class="layui-form-label">商品名称</label>
+                            <div class="layui-input-inline">
+                                <input name="name" type="text" class="layui-input" title="商品名称"  value="{$good.name|default=''}" disabled>
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">
+                                <span class="x-red">*</span>最多50个汉字
+                            </div>
+                        </div>
+                        <div class="layui-input-item">
+                            <label class="layui-form-label">商品单位</label>
+                            <div class="layui-input-inline">
+                                <input name="unit" type="text" class="layui-input" title="商品单位"  value="{$good.unit|default=''}" disabled>
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">
+                                <span class="x-red">*</span>个/次/件/套/台
+                            </div>
+                        </div>
+                        <div class="layui-input-item">
+                            <label class="layui-form-label">关键字</label>
+                            <div class="layui-input-inline">
+                                <input name="keyword" type="text" class="layui-input" title="关键字"  value="{$good.keyword|default=''}" disabled>
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">
+                                <span class="x-red">*</span>商品关键字,能准确搜到商品的,比如 : 海尔电视,电视，以逗号分割
+                            </div>
+                        </div>
+                        <div class="layui-input-item">
+                            <label class="layui-form-label">订单类型</label>
+                            <div class="layui-input-block">
+                                <input type="radio" name="order_type" value="0" title="线上发货" disabled {if ($good.order_type == 0)} checked {/if}>
+                                <input type="radio" name="order_type" value="1" title="线下核销" disabled {if ($good.order_type == 1)} checked {/if}>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-md3">
+                    <div class="left-title">商品信息</div>
+                </div>
+                <div class="layui-col-md9">
+                    <div style="background-color: #F8F8F8">
+                        <div class="layui-input-item">
+                            <label class="layui-form-label">商品分类</label>
+                            <div class="layui-input-inline">
+                                <select name="category" lay-search="" disabled>
+                                    <option value=""></option>
+                                    {volist name="good_category" id="category"}
+                                    <option value="{$category.id}" {if ($good.category_id == $category.id)}selected{/if}>{$category.name}</option>
+                                    {/volist}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-input-item">
+                            <label class="layui-form-label">商品价格</label>
+                            <div class="layui-input-inline">
+                                <input name="marketprice" type="text" class="layui-input" title="售价" placeholder="售价" value="{$good.marketprice|default=''}" disabled>
+                            </div>
+                            <div class="layui-input-inline">
+                                <input name="productprice" type="text" class="layui-input" title="原价" placeholder="原价" value="{$good.productprice|default=''}" disabled>
+                            </div>
+                            <div class="layui-input-inline">
+                                <input name="costprice" type="text" class="layui-input" title="成本价" placeholder="成本价" value="{$good.costprice|default=''}" disabled>
+                            </div>
+                        </div>
+                        <div class="layui-input-item">
+                            <label class="layui-form-label">已售数量</label>
+                            <div class="layui-input-inline">
+                                <input name="sales" type="text" class="layui-input" title="已售数量" value="{$good.sales|default=''}" disabled>
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">
+                                <span class="x-red">*</span>不能高于500
+                            </div>
+                        </div>
+                        <div class="layui-input-item">
+                            <label class="layui-form-label">商品图片</label>
+                            <div class="layui-input-inline">
+                                <input type="text" class="layui-input" disabled>
+                            </div>
+                            <a class="layui-btn form-btn layui-disabled" id="uploadImg">多图上传</a>
+                            <a class="layui-btn form-btn layui-btn-danger layui-disabled" id="clearAll">全部清除</a>
+                            <div class="layui-form-mid layui-word-aux">
+                                <span class="x-red">*</span>图片大小360*360px
+                            </div>
+                        </div>
+                        <blockquote class="layui-elem-quote layui-quote-nm" style="margin-top: 10px;">
+                            预览图：
+                            <div class="layui-upload-list" id="preview"></div>
+                        </blockquote>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-tab-item">
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-md3">
+                    <div class="left-title">库存</div>
+                </div>
+                <div class="layui-col-md9">
+                    <div style="background-color: #F8F8F8">
+                        <div class="layui-input-item">
+                            <label class="layui-form-label">库存</label>
+                            <div class="layui-input-inline">
+                                <input type="text" class="layui-input" title="库存" name="total" id="total" value="{$good.total|default='0'}" disabled/>
+                            </div>
+                            <label class="layui-form-label">显示库存</label>
+                            <div class="layui-input-inline">
+                                <input type="checkbox" name="showtotal" lay-skin="switch" disabled lay-text="是|否" {if ($good.showtotal == 1)} checked {/if}>
+                            </div>
+                        </div>
+                        <div class="layui-input-item">
+                            <div class="layui-input-item">
+                                <label class="layui-form-label"></label>
+                                <div class="layui-input-block">
+                                    <input type="radio" name="totalcnf" value="0" title="拍下立减库存" disabled {if ($good.totalcnf == 0)} checked {/if}>
+                                    <input type="radio" name="totalcnf" value="1" title="永不减库存" disabled {if ($good.totalcnf == 1)} checked {/if}>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-md3">
+                    <div class="left-title">规格</div>
+                </div>
+                <div class="layui-col-md9">
+                    <div style="background-color: #F8F8F8">
+                        <div class="layui-input-item">
+                            <label class="layui-form-label"></label>
+                            <div class="layui-input-inline">
+                                <input type="checkbox" disabled name="hasoption" lay-filter="hasoption" title="启用商品规格" id="hasoption" lay-skin="primary" {if ($good_specs->count() >0)}checked{/if}>
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">
+                                启用商品规格后，商品的价格及库存以商品规格为准,库存设置为0则会到”已售罄“中
+                            </div>
+                        </div>
+                        <div id="tboption" style="display: none;">
+                            <div id="specs">
+                            </div>
+                            <div style="text-align: center; padding-bottom: 20px">
+                                <a class="layui-btn layui-disabled" id="add-spec"><i class="layui-icon layui-icon-add-1"></i>添加规格</a>
+                                <a class="layui-btn layui-disabled" id="refresh"><i class="layui-icon layui-icon-refresh"></i>刷新规格项目表</a>
+                            </div>
+                        </div>
+                        <div id="specs-table" style="text-align: center">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-tab-item">
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-md3">
+                    <div class="left-title">参数</div>
+                </div>
+                <div class="layui-col-md9" id="params-right">
+                    <div style="background-color: #F8F8F8; padding: 20px; text-align: center">
+                        <div class="layui-row layui-col-space10">
+                            <div class="layui-col-md2">参数名称</div>
+                            <div class="layui-col-md8">参数值</div>
+                            <div class="layui-col-md2">操作</div>
+                        </div>
+                        <div class="param-container">
+
+                        </div>
+                        <div style="text-align: center;margin-top: 20px;">
+                            <a class="layui-btn" id="add-param"><i class="layui-icon layui-icon-add-1"></i>添加参数</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-tab-item">
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-md3">
+                    <div class="left-title">商品详情</div>
+                </div>
+                <div class="layui-col-md9">
+                    <div style="background-color: #F8F8F8; padding: 20px;">
+                        <div id="editor" type="text/plain" style="height:260px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-tab-item">
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-md3">
+                    <div class="left-title">购买权限</div>
+                </div>
+                <div class="layui-col-md9">
+                    <div style="background-color: #F8F8F8; padding: 20px;">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">单次最多购买</label>
+                            <div class="layui-input-inline">
+                                <input class="layui-input" name="maxbuy" value="{$good.maxbuy|default='0'}" disabled>
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">
+                                用户单次购买此商品数量限制
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">单次最低购买</label>
+                            <div class="layui-input-inline">
+                                <input class="layui-input" name="minbuy" value="{$good.minbuy|default='0'}" disabled>
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">
+                                用户单次必须最少购买此商品数量限制
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</form>
+
+<script>
+    layui.use(['form','upload','layer'],function(){
+        let form = layui.form;
+        let upload = layui.upload;
+        let $ = layui.$;
+        let layer = layui.layer;
+        let imgs = [];
+        // 定义一些Jquery元素
+        let specs = '#specs';
+        let spec_item = '.spec-item';
+        let spec_item_item = '.spec-item-item';
+        let spec_table = '#specs-table';
+
+        // 初始化商品详情编辑器
+        let url="{:url('index/ueditor/index')}";
+        let editor = UE.getEditor('editor',{
+            serverUrl :url
+        });
+
+        // 插入商品详情
+        let detail = "{$good.detail|default=''}";
+        detail = $('<div>').html(detail).text();
+        editor.ready(function(){
+            editor.setContent(detail);
+            editor.setDisabled('fullscreen');
+        });
+
+        // 获取商品图片
+        $.ajax({
+            type: "POST",
+            data: {id: "{$good.id}"},
+            url: '{:url("admin/good/getGoodImage")}',
+            success: function(res){
+                res.data.forEach(function(currentValue){
+                    imgs.push(currentValue.img);
+                    $('#preview').append('<img src="/'+ currentValue.img +'" class="layui-upload-img" style="height: 80px;">');
+                });
+            },
+            error: function(){
+                layer.alert("获取商品图片失败");
+            }
+        });
+
+        // 获取商品参数
+        $.ajax({
+            type: "POST",
+            data: {id: "{$good.id}"},
+            url: '{:url("admin/good/getGoodParam")}',
+            success: function(res){
+                res.data.forEach(function(currentValue){
+                    let tmp = '<div class="layui-row layui-col-space10">'+
+                        '<div class="layui-col-md2"><input class="layui-input" disabled placeholder="参数名称" name="param_title[]" value="'+currentValue.title+'"></div>'+
+                        '<div class="layui-col-md8"><input class="layui-input" disabled placeholder="参数值" name="param_value[]" value="'+currentValue.value+'"></div>'+
+                        '<div class="layui-col-md2"><a class="layui-btn layui-btn-danger param-del layui-disabled"><i class="layui-icon layui-icon-close"></i>删除</a></div>'+
+                        '</div>';
+                    $('.param-container').append(tmp);
+                });
+            },
+            error: function(){
+                layer.alert("获取商品参数失败");
+            }
+        });
+
+        // 获取商品规格
+        $.ajax({
+            type: "POST",
+            data: {id: "{$good.id}"},
+            url: '{:url("admin/good/getGoodSpec")}',
+            success: function(res){
+                if(res.data.length >0 ) {
+                    $.ajax({
+                        type: "POST",
+                        data: {id: "{$good.id}"},
+                        url: '{:url("admin/good/getGoodOption")}',
+                        success: function (options) {
+                            console.log(options.data);
+                            $("#total").attr("disabled", true);
+                            $("#tboption").css("display", "block");
+                            res.data.forEach(function (currentValue) {
+                                let tmp = '<div class="spec-item">' +
+                                    '<div class="layui-input-item">' +
+                                    '<div class="layui-input-inline">' +
+                                    '<input class="layui-input" style="width: 400px;margin-left: 20px;" disabled placeholder="规格名称(比如：颜色)" name="spec_title[]" value="' + currentValue.spec_title + '">' +
+                                    '</div>' +
+                                    '<div class="layui-input-inline">' +
+                                    '<a class="layui-btn add-spec-item layui-disabled">添加规格项</a>' +
+                                    '<a class="layui-btn layui-bg-red remove-spec layui-disabled"><i class="layui-icon layui-icon-close"></i>删除</a>' +
+                                    '</div>' +
+                                    '</div>' +
+                                    '<div class="layui-row spec-item-item">';
+
+                                currentValue.item.forEach(function (item) {
+                                    tmp += '<div class="layui-col-md4">' +
+                                        '<div class="layui-input-inline">' +
+                                        '<div class="layui-input-inline">' +
+                                        '<input class="layui-input spec-item-title" disabled value="' + item.title + '" placeholder="规格项" name="spec_item_title_' + item.title + '[]">' +
+                                        '</div>' +
+                                        '<div class="layui-input-inline">' +
+                                        '<a class="layui-btn layui-bg-red remove-spec-item layui-disabled"><i class="layui-icon layui-icon-close"></i>删除</a>' +
+                                        '</div>' +
+                                        '</div>' +
+                                        '</div>';
+                                });
+
+                                tmp += '</div></div>';
+                                $('#specs').append(tmp);
+                            });
+                            let specs = res.data;
+                            let tableHTML = '';
+                            tableHTML += '<table class="layui-table">';
+                            tableHTML += '<thead>';
+                            tableHTML += '<tr>';
+                            for (let i = 0; i < specs.length; i++) {
+                                tableHTML += '<th width="50">' + specs[i].spec_title + '</th>';
+                            }
+                            tableHTML += '<th width="20">库存</th>';
+                            tableHTML += '<th width="20">现价</th>';
+                            tableHTML += '<th width="20">原价</th>';
+                            tableHTML += '<th width="20">成本价</th>';
+                            tableHTML += '</tr>';
+                            tableHTML += '</thead>';
+                            tableHTML += '<tbody>';
+
+                            let numsArr = []; // 规格项目数量的数组
+                            let idxArr = [];
+                            // 获取每个规格项目的数量
+                            for (let i = 0; i < specs.length; i++) {
+                                numsArr.push(specs[i].item.length);
+                                idxArr[i] = 0;
+                            }
+
+                            let len = 1; // 用于存储整个表格有多少行
+                            let rowsArr = []; // 用户存储表格规格名称列占用几行
+                            for (let i = 0; i < numsArr.length; i++) {
+                                len = len * numsArr[i];
+
+                                let tmpnum = 1;
+                                for (let j = numsArr.length - 1; j > i; j--) {
+                                    tmpnum = tmpnum * numsArr[j];
+                                }
+                                rowsArr.push(tmpnum);
+                            }
+
+                            // 拼接规格表的表格体
+                            for (let i = 0; i < len; i++) {
+                                tableHTML += '<tr data-row="' + (i + 1) + '">';
+                                let name = '';
+                                for (let j = 0; j < specs.length; j++) {
+                                    let n = parseInt(i / rowsArr[j]);
+                                    if (j === 0) {
+                                    } else if (j === specs.length - 1) {
+                                        n = idxArr[j];
+                                        if (idxArr[j] + 1 >= numsArr[j]) {
+                                            idxArr[j] = 0;
+                                        } else {
+                                            idxArr[j]++;
+                                        }
+                                    } else {
+                                        let m = parseInt(i / rowsArr[j]);
+                                        n = m % numsArr[j];
+                                    }
+
+                                    let text = specs[j].item[n].title;
+                                    if (j !== specs.length - 1) {
+                                        name += text + '_';
+                                    } else {
+                                        name += text;
+                                    }
+
+                                    if (i % rowsArr[j] === 0) {
+                                        tableHTML += '<td width="50" rowspan="' + rowsArr[j] + '" data-rc="' + (i + 1) + '_' + (j + 1) + '">' + text + '</td>';
+                                    }
+                                }
+
+                                let optionTitle = name.replace(/_/, "+");
+                                let optionDetail = {
+                                    stock: 0,
+                                    marketprice: 0,
+                                    productprice: 0,
+                                    costprice: 0
+                                };
+                                options.data.forEach(function (option) {
+                                    if (option.title === optionTitle) {
+                                        optionDetail = option;
+                                    }
+                                });
+                                tableHTML += '<td width="20"><input disabled type="text" name="option_' + name + '[stock]" class="layui-input" value="' + optionDetail.stock + '"/></td>';
+                                tableHTML += '<td width="20"><input disabled type="text" name="option_' + name + '[marketprice]" class="layui-input" value="' + optionDetail.marketprice + '"/></td>';
+                                tableHTML += '<td width="20"><input disabled type="text" name="option_' + name + '[productprice]" class="layui-input" value="' + optionDetail.productprice + '"/></td>';
+                                tableHTML += '<td width="20"><input disabled type="text" name="option_' + name + '[costprice]" class="layui-input" value="' + optionDetail.costprice + '"/></td>';
+                                tableHTML += '</tr>';
+                            }
+                            tableHTML += '</tbody>';
+                            tableHTML += '</table>';
+                            $(spec_table).show();
+                            $(spec_table).html(tableHTML);
+                        },
+                        error: function () {
+                            layer.alert("获取商品规格详细信息失败");
+                        }
+                    });
+                }
+            },
+            error: function(){
+                layer.alert("获取商品规格失败");
+            }
+        });
+    })
+</script>
+
+{/block}

@@ -1,0 +1,111 @@
+{extend name="base" /}
+{block name="content"}
+<table id="applicationTable" lay-filter="applicationTable"></table>
+<!-- 操作栏 -->
+<script type="text/html" id="applicationBar">
+    {{#  if(d.status !== 1){ }}
+    <a class="layui-btn layui-btn-xs" lay-event="onContact">已联系</a>
+    {{#  } }}
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<!--状态切换-->
+<script type="text/html" id="statusTpl">
+    {{#  if(d.status == 1){ }}
+    <span class="layui-badge layui-bg-green">已联系</span>
+    {{#  } else { }}
+    <span class="layui-badge layui-bg-cyan">待联系</span>
+    {{#  } }}
+</script>
+
+<script>
+    layui.use('table', function(){
+        let table = layui.table,
+            form = layui.form,
+            layer = layui.layer,
+            $ = layui.$;
+        let tableIns = table.render({
+            elem: '#applicationTable',
+            cols: [[
+                {field: 'id', title: 'ID',align: 'center',width: 80},
+                {field: 'name',title: '联系人',align: 'center',width: 80},
+                {field: 'phone', title: '联系电话',align: 'center',width: 120},
+                {field: 'title', title: '店铺名称',align: 'center',width: 200},
+                {field: 'address', title: '联系地址',align: 'center',width: 300},
+                {field: 'create_time', title: '申请时间',align: 'center'},
+                {field:'status', title:'状态', templet: '#statusTpl', unresize: true,align: 'center',width: 80},
+                {fixed: 'right', title:'操作', toolbar: '#applicationBar', width:150}
+            ]],
+            page: true,
+            url: '{:url("admin/store/getApplication")}'
+        });
+        //监听工具条
+        table.on('tool(applicationTable)', function(obj){
+            let layEvent = obj.event;
+            if(layEvent === 'del'){ //删除
+                layer.confirm('真的删除么', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: {id: obj.data.id},
+                        url: '{:url("admin/store/delApplication")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+
+                });
+            } else if(layEvent === 'onContact'){ //删除
+                layer.confirm('确定修改状态为已联系吗？', function(index){
+                    $.ajax({
+                        type: 'POST',
+                        data: {id: obj.data.id},
+                        url: '{:url("admin/store/onContact")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                tableIns.reload();
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+
+                });
+            }
+        });
+
+        table.on('edit(hotSearch)', function(obj){
+            $.ajax({
+                type: 'POST',
+                data: {"id": obj.data.id, "sort": obj.value},
+                url: '{:url("admin/hot_search/changeSort")}',
+                success: function(res){
+                    if(res.code !== 0){
+                        layer.alert(res.message);
+                    }else {
+                        layer.alert(res.message);
+                    }
+                },
+                error: function(){
+                    layer.alert("请求修改失败！");
+                }
+            })
+        });
+    });
+</script>
+{/block}

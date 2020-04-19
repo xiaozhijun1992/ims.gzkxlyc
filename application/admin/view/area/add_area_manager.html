@@ -1,0 +1,154 @@
+{extend name="window" /}
+
+{block name="content"}
+<form class="layui-form">
+    <div class="layui-form-item">
+        <label for="user_id" class="layui-form-label"><span class="x-red">*</span>用户ID</label>
+        <div class="layui-input-inline">
+            <input type="text" id="user_id" name="user_id" required=""  autocomplete="off" class="layui-input">
+        </div>
+        <label for="phone" class="layui-form-label"><span class="x-red">*</span>用户手机号</label>
+        <div class="layui-input-inline">
+            <input type="text" id="phone" name="phone" required="" autocomplete="off" class="layui-input" >
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="real_name" class="layui-form-label"><span class="x-red">*</span>真实姓名</label>
+        <div class="layui-input-inline">
+            <input type="text" id="real_name" name="real_name" required="" autocomplete="off" class="layui-input">
+        </div>
+        <label for="sex" class="layui-form-label"><span class="x-red">*</span>性别</label>
+        <div class="layui-input-inline">
+            <select id="sex" name="sex" class="layui-select">
+                <option></option>
+                <option value="0">男</option>
+                <option value="1">女</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="id_no" class="layui-form-label">
+            <span class="x-red">*</span>身份证号
+        </label>
+        <div class="layui-input-inline">
+            <input type="text" id="id_no" name="id_no" required="" autocomplete="off" class="layui-input">
+        </div>
+        <label for="address" class="layui-form-label">
+            <span class="x-red">*</span>联系地址
+        </label>
+        <div class="layui-input-inline">
+            <input type="text" id="address" name="address" required="" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="agreement" class="layui-form-label"><span class="x-red">*</span>代理协议书</label>
+        <div class="layui-input-inline">
+            <input class="layui-input" type="hidden" id="agreement" name="agreement">
+            <div class="layui-upload-drag" id="agreementUploader">
+                <i class="layui-icon">&#xe67c;</i>
+                <p>点击上传，或将文件拖拽到此处</p>
+            </div>
+        </div>
+        <label for="id_photo" class="layui-form-label"><span class="x-red">*</span>身份证照片</label>
+        <div class="layui-input-inline">
+            <input class="layui-input" type="hidden" id="id_photo" name="id_photo">
+            <div class="layui-upload-drag" id="idPhotoUploader">
+                <i class="layui-icon">&#xe67c;</i>
+                <p>点击上传，或将文件拖拽到此处</p>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="L_add" class="layui-form-label">
+        </label>
+        <button id="L_add" class="layui-btn" lay-filter="add" lay-submit="">
+            增加
+        </button>
+    </div>
+</form>
+<script>
+    layui.extend({'tableSelect': '{/}/static/lib/plugin/table-select/table-select'});
+    layui.use(['form','layer','upload','tableSelect'], function(){
+        let $ = layui.$,
+            form = layui.form,
+            layer = layui.layer,
+            upload = layui.upload,
+            tableSelect = layui.tableSelect;
+        tableSelect.render({
+            elem: '#user_id',
+            checkedKey: 'id',
+            searchKey: 'phone',
+            searchPlaceholder: '手机号搜索',
+            table: {	//定义表格参数，与LAYUI的TABLE模块一致，只是无需再定义表格elem
+                url:'{:url("admin/user/get")}',
+                cols: [[
+                    {type: 'radio' },
+                    {field: 'id', title: '用户ID'},
+                    {field: 'code', title: '用户代码'},
+                    {field: 'nick_name',title: '昵称'},
+                    {field: 'phone',title: '手机号'},
+                ]]
+            },
+            done: function (elem, data) {
+                $("#user_id").val(data.data[0].id);
+                $("#phone").val(data.data[0].phone);
+            }
+        });
+        //文件上传
+        upload.render({
+            elem: '#agreementUploader'
+            ,url: '{:url("admin/area/upload")}'
+            ,done: function(res){
+                layer.msg("上传成功");
+                $("#agreement").val(res.data);
+            },
+            before: function(obj){
+                obj.preview(function(index, file, result){
+                    $('#agreementUploader').css('background-image', 'url('+ result +')'); //图片链接（base64）
+                    $('#agreementUploader').css('background-size', 'contain');
+                    $('#agreementUploader').css('background-repeat', 'no-repeat');
+                    $('#agreementUploader').css('background-position', 'center');
+                });
+            }
+        });
+
+        upload.render({
+            elem: '#idPhotoUploader'
+            ,url: '{:url("admin/area/upload")}'
+            ,done: function(res){
+                layer.msg("上传成功");
+                $("#id_photo").val(res.data);
+            },
+            before: function(obj){
+                obj.preview(function(index, file, result){
+                    $('#idPhotoUploader').css('background-image', 'url('+ result +')'); //图片链接（base64）
+                    $('#idPhotoUploader').css('background-size', 'contain');
+                    $('#idPhotoUploader').css('background-repeat', 'no-repeat');
+                    $('#idPhotoUploader').css('background-position', 'center');
+                });
+            }
+        });
+
+        //监听提交
+        form.on('submit(add)', function(data){
+            console.log(data);
+            $.ajax({
+                type: 'POST',
+                data: data.field,
+                url: "{:url('admin/area/insertManager')}",
+                success: function(res){
+                    if(res.code === 0) {
+                        layer.alert(res.message, {icon: 6}, function () {
+                            x_admin_close();
+                            x_admin_father_reload();
+                        });
+                    }else {
+                        layer.alert(res.message);
+                    }
+                }
+            });
+            return false;
+        });
+    });
+</script>
+{/block}

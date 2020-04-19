@@ -1,0 +1,322 @@
+<!doctype html>
+<html  class="x-admin-sm">
+<head>
+	<meta charset="UTF-8">
+	<title>快享立赢运营中心</title>
+	<meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8" />
+    <meta name=renderer  content=webkit>
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    {load href="/static/css/font.css" /}
+    {load href="/static/css/xadmin.css" /}
+    {load href="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js" /}
+    {load href="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js" /}
+    {load href="/static/lib/layui/layui.js" /}
+    {load href="/static/js/xadmin.js" /}
+    {load href="/static/js/cookie.js" /}
+    <script>
+        // 是否开启刷新记忆tab功能
+        // var is_remember = false;
+    </script>
+</head>
+<body>
+    <!-- 顶部开始 -->
+    <div class="container">
+        <div class="logo"><a href="./index.html"><img src="/static/images/banner.png"></a></div>
+        <div class="left_open">
+            <i title="展开左侧栏" class="iconfont">&#xe699;</i>
+        </div>
+        <!--
+        <ul class="layui-nav left fast-add" lay-filter="">
+          <li class="layui-nav-item">
+            <a href="javascript:;">+新增</a>
+            <dl class="layui-nav-child">
+              <dd><a onclick="x_admin_show('资讯','https://www.baidu.com')"><i class="iconfont">&#xe6a2;</i>资讯</a></dd>
+              <dd><a onclick="x_admin_show('图片','https://www.baidu.com')"><i class="iconfont">&#xe6a8;</i>图片</a></dd>
+               <dd><a onclick="x_admin_show('用户 最大化','https://www.baidu.com','','',true)"><i class="iconfont">&#xe6b8;</i>用户最大化</a></dd>
+               <dd><a onclick="x_admin_add_to_tab('在tab打开','https://www.baidu.com',true)"><i class="iconfont">&#xe6b8;</i>在tab打开</a></dd>
+            </dl>
+          </li>
+        </ul>
+        -->
+        <ul class="layui-nav right" lay-filter="">
+          <li class="layui-nav-item">
+            <a href="javascript:;">{$Think.session.admin_info.name}</a>
+            <dl class="layui-nav-child"> <!-- 二级菜单 -->
+              <dd><a href="{:url('admin/index/logout')}">退出</a></dd>
+            </dl>
+          </li>
+        </ul>
+        
+    </div>
+    <!-- 顶部结束 -->
+    <!-- 中部开始 -->
+     <!-- 左侧菜单开始 -->
+    <div class="left-nav">
+      <div id="side-nav">
+        <ul id="nav">
+            <li>
+                <a href="javascript:;">
+                    <cite>平台管理</cite>
+                    <i class="iconfont nav_right">&#xe697;</i>
+                </a>
+                <ul class="sub-menu">
+                    <li date-refresh="1">
+                        <a _href="{:url('admin/swipe/index')}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>首页轮播图</cite>
+                        </a>
+                    </li>
+                    <li>
+                        <a _href="{:url('admin/hot_search/index')}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>热门搜索</cite>
+                        </a>
+                    </li>
+                    <li date-refresh="1">
+                        <a _href="{:url('admin/industries/index')}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>行业管理</cite>
+                        </a>
+                    </li>
+                    <li date-refresh="1">
+                        <a _href="{:url('admin/share_holder/index')}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>股东管理</cite>
+                        </a>
+                    </li>
+                    <li date-refresh="1">
+                        <a _href="{:url('admin/area/index')}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>区域管理</cite>
+                        </a>
+                    </li>
+                    <li>
+                        <a _href="{:url('admin/auth/index')}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>权限管理</cite>
+                        </a>
+                    </li>
+                    <li>
+                        <a _href="{:url('admin/member/index')}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>用户管理</cite>
+                        </a>
+                    </li>
+                    <li>
+                        <a _href="{:url('admin/express/index')}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>物流设置</cite>
+                        </a>
+                    </li>
+                    <!--
+                    <li>
+                        <a _href="{:url('admin/sms/index')}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>短信配置</cite>
+                        </a>
+                    </li>
+                    -->
+                    <!--<li>-->
+                        <!--<a _href="javascript:;">-->
+                            <!--<i class="iconfont">&#xe6a7;</i>-->
+                            <!--<cite>支付设置</cite>-->
+                        <!--</a>-->
+                    <!--</li>-->
+                </ul>
+            </li>
+            <li>
+                <a _href="javascript:;">
+                    <cite>商城管理</cite>
+                    <i class="iconfont nav_right">&#xe697;</i>
+                </a>
+                <ul class="sub-menu">
+                    <li>
+                        <a _href="{:url('admin/store/application')}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>入驻申请</cite>
+                        </a>
+                    </li>
+                    <li>
+                        <a _href="{:url('admin/good/index')}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>商品管理</cite>
+                        </a>
+                    </li>
+                    <li>
+                        <a _href="{:url('admin/good_category/index')}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>分类管理</cite>
+                        </a>
+                    </li>
+                    <li>
+                        <a _href="{:url('admin/good_order/index')}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>订单管理</cite>
+                        </a>
+                    </li>
+                    <li>
+                        <a _href="{:url('admin/good_comment/index')}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>商品评价</cite>
+                        </a>
+                    </li>
+                    <li>
+                        <a _href="{:url('admin/user/index')}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>会员管理</cite>
+                        </a>
+                    </li>
+                    <li>
+                        <a _href="{:url('admin/store/index')}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>店铺管理</cite>
+                        </a>
+                    </li>
+                    <li>
+                        <a _href="{:url('admin/shopping_setting/index')}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>购物设置</cite>
+                        </a>
+                    </li>
+                    <li>
+                        <a _href="{:url('admin/with_drawal/index')}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>提现设置</cite>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <!--<li>-->
+                <!--<a _href="javascript:;">-->
+                    <!--<cite>活动管理</cite>-->
+                    <!--<i class="iconfont nav_right">&#xe697;</i>-->
+                <!--</a>-->
+                <!--<ul class="sub-menu">-->
+                    <!--<li>-->
+                        <!--<a _href="{:url('admin/activity/singleActivity')}">-->
+                            <!--<i class="iconfont">&#xe6a7;</i>-->
+                            <!--<cite>单活动位管理</cite>-->
+                        <!--</a>-->
+                    <!--</li>-->
+                    <!--<li>-->
+                        <!--<a _href="{:url('admin/activity/twoActivity')}">-->
+                            <!--<i class="iconfont">&#xe6a7;</i>-->
+                            <!--<cite>双活动位管理</cite>-->
+                        <!--</a>-->
+                    <!--</li>-->
+                    <!--<li>-->
+                        <!--<a _href="{:url('admin/activity/threeActivity')}">-->
+                            <!--<i class="iconfont">&#xe6a7;</i>-->
+                            <!--<cite>三活动位管理</cite>-->
+                        <!--</a>-->
+                    <!--</li>-->
+                    <!--<li>-->
+                        <!--<a _href="{:url('admin/activity/fourActivity')}">-->
+                            <!--<i class="iconfont">&#xe6a7;</i>-->
+                            <!--<cite>四活动位管理</cite>-->
+                        <!--</a>-->
+                    <!--</li>-->
+                <!--</ul>-->
+            <!--</li>-->
+            <li>
+                <a href="javascript:;">
+                    <cite>财务管理</cite>
+                    <i class="iconfont nav_right">&#xe697;</i>
+                </a>
+                <ul class="sub-menu">
+                    <li>
+                        <a _href="{:url('admin/bank_list/index')}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>结算银行</cite>
+                        </a>
+                    </li>
+                    <li>
+                        <a _href="{:url('admin/store_settle/index')}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>店铺结算单</cite>
+                        </a>
+                    </li>
+                    <li>
+                        <a _href="{:url('admin/area_settle/index')}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>区域结算单</cite>
+                        </a>
+                    </li>
+                    <li>
+                        <a _href="{:url('admin/transfers/index')}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>佣金提现管理</cite>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <!--<li>-->
+                <!--<a href="javascript:;">-->
+                    <!--<cite>统计信息</cite>-->
+                    <!--<i class="iconfont nav_right">&#xe697;</i>-->
+                <!--</a>-->
+                <!--<ul class="sub-menu">-->
+                    <!--<li>-->
+                        <!--<a _href="city.html">-->
+                            <!--<i class="iconfont">&#xe6a7;</i>-->
+                            <!--<cite>店铺统计</cite>-->
+                        <!--</a>-->
+                    <!--</li>-->
+                    <!--<li>-->
+                        <!--<a _href="city.html">-->
+                            <!--<i class="iconfont">&#xe6a7;</i>-->
+                            <!--<cite>平台统计</cite>-->
+                        <!--</a>-->
+                    <!--</li>-->
+                    <!--<li>-->
+                        <!--<a _href="city.html">-->
+                            <!--<i class="iconfont">&#xe6a7;</i>-->
+                            <!--<cite>会员统计</cite>-->
+                        <!--</a>-->
+                    <!--</li>-->
+                    <!--<li>-->
+                        <!--<a _href="city.html">-->
+                            <!--<i class="iconfont">&#xe6a7;</i>-->
+                            <!--<cite>订单统计</cite>-->
+                        <!--</a>-->
+                    <!--</li>-->
+                <!--</ul>-->
+            <!--</li>-->
+        </ul>
+      </div>
+    </div>
+    <!-- <div class="x-slide_left"></div> -->
+    <!-- 左侧菜单结束 -->
+    <!-- 右侧主体开始 -->
+    <div class="page-content">
+        <div class="layui-tab tab" lay-filter="xbs_tab" lay-allowclose="false">
+          <ul class="layui-tab-title">
+            <li class="home"><i class="layui-icon">&#xe68e;</i>我的桌面</li>
+          </ul>
+          <div class="layui-unselect layui-form-select layui-form-selected" id="tab_right">
+                <dl>
+                    <dd data-type="this">关闭当前</dd>
+                    <dd data-type="other">关闭其它</dd>
+                    <dd data-type="all">关闭全部</dd>
+                </dl>
+          </div>
+          <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <iframe src='{:url("admin/index/welcome")}' frameborder="0" scrolling="yes" class="x-iframe"></iframe>
+            </div>
+          </div>
+          <div id="tab_show"></div>
+        </div>
+    </div>
+    <div class="page-content-bg"></div>
+    <!-- 右侧主体结束 -->
+    <!-- 中部结束 -->
+    <!-- 底部开始 -->
+    <div class="footer">
+        <div class="copyright" style="text-align: center">Copyright ©2019 贵州同城共赢网络科技有限公司</div>
+    </div>
+    <!-- 底部结束 -->
+</body>
+</html>

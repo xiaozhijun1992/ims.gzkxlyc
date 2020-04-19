@@ -1,0 +1,75 @@
+{extend name="base" /}
+
+{block name="content"}
+<xblock>
+    <p>如果没有您所需要的银行，请联系0858-8699077咨询</p>
+</xblock>
+<form class="layui-form">
+    <div class="layui-form-item">
+        <label class="layui-form-label">银行</label>
+        <div class="layui-input-inline">
+            <select name="bank" lay-verify="required" lay-search>
+                <option value=""></option>
+                {volist name="bankList" id="bank"}
+                <option value="{$bank.name}" {if ($bank.name == $account.bank)}selected{/if}>{$bank.name}</option>
+                {/volist}
+            </select>
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <span class="x-red">*</span>结算银行
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">姓名</label>
+        <div class="layui-input-inline">
+            <input type="text" name="name" required="" class="layui-input" value="{$account.name|default=''}">
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <span class="x-red">*</span>收款人姓名
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">账号</label>
+        <div class="layui-input-inline">
+            <input type="text" name="account" required="" class="layui-input" value="{$account.account|default=''}">
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <span class="x-red">*</span>收款人账号
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="L_add" class="layui-form-label">
+        </label>
+        <button id="L_add" class="layui-btn" lay-filter="edit" lay-submit="">
+            修改
+        </button>
+    </div>
+</form>
+<script>
+    layui.use(['form','layer',], function(){
+        let $ = layui.$,
+            form = layui.form,
+            layer = layui.layer;
+
+        //监听提交
+        form.on('submit(edit)', function(data){
+            console.log(data);
+            $.ajax({
+                type: 'POST',
+                data: data.field,
+                url: "{:url('store/store_bank_account/edit')}",
+                success: function(res){
+                    if(res.code === 0) {
+                        layer.alert(res.message, {icon: 6}, function () {
+                            location.replace(location.href);
+                        });
+                    }else {
+                        layer.alert(res.message);
+                    }
+                }
+            });
+            return false;
+        });
+    });
+</script>
+{/block}

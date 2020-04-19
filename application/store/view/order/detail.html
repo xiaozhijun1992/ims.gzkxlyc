@@ -1,0 +1,40 @@
+{extend name="window" /}
+
+{block name="content"}
+<table class="layui-table">
+    <colgroup>
+        <col width="150">
+        <col width="200">
+        <col>
+        <col>
+        <col>
+        <col>
+        <col>
+    </colgroup>
+    <thead>
+    <tr>
+        <th>类型</th>
+        <th>商品名称</th>
+        <th>商品规格</th>
+        <th>单价</th>
+        <th>数量</th>
+        <th>总价</th>
+        <th>核销</th>
+    </tr>
+    </thead>
+    <tbody>
+    {foreach $details as $detail }
+    <tr>
+        <td>{if ($detail->offline == 1)}<span class="layui-badge  layui-bg-cyan">线下核销</span>{else /}<span class="layui-badge layui-bg-blue">线上发货</span> {/if}</td>
+        <td>{$detail->good_name}</td>
+        <td>{$detail->option_name|default="无"}</td>
+        <td>{$detail->price}</td>
+        <td>{$detail->number}</td>
+        <td>{$detail->amount}</td>
+        <td>{if ($detail->is_verification == 1)}<span class="layui-badge ">已核销</span>{/if}</td>
+    </tr>
+    {/foreach}
+    </tbody>
+</table>
+
+{/block}

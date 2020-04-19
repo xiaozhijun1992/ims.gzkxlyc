@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, height=device-height,user-scalable=no, initial-scale=1.0" />
+		{load href="/static/css/weweb.min.css" /} {load href="/static/css/app.css" /}
+		{load href="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js" /}
+	</head>
+	<body>
+		<div class="head">
+			<div class="jshook-ws-head" style="display: flex; background-color: #fa922f;color: #fff;">
+				<div class="head-back jshook-ws-head-back" style="display: none;">
+
+				</div>
+				<div class="head-home jshook-ws-head-home" onclick="onclickset()" style="display: flex;font-size: 14px;">
+					<div class="cuIcon-back cuIcon-back">
+
+					</div>返回
+				</div>
+				<h3 class="head-title jshook-ws-head-title" style="color: black;">
+				<i class="head-title-loading" style="display: none;"></i>
+				<span style="color: #fff;font-size: 16px;width: 100%;font-weight: 100;">确认订单</span>
+				</h3>
+				<div class="head-option jshook-ws-head-option"></div>
+			</div>
+		</div>
+	</body>
+</html>
+<script type="text/javascript">
+window.onload=function(){
+		parent.$('#loads').hide();
+	}
+	function onclickset(){
+		parent.onclickset();
+	}
+	var datscc="<?= $_GET['datscc'];?>";
+	console.log(datscc);
+	function onBridgeReady(){
+	alert(1);
+	   WeixinJSBridge.invoke(
+		  'getBrandWCPayRequest', {
+			 "appId":datscc.appId,     //公众号名称，由商户传入     
+			 "timeStamp":datscc.timeStamp,         //时间戳，自1970年以来的秒数     
+			 "nonceStr":datscc.nonceStr, //随机串     
+			 "package":datscc.package,     
+			 "signType":datscc.signType,         //微信签名方式：     
+			 "paySign":datscc.paySign //微信签名 
+		  },
+		  function(res){
+		  alert(2);
+		  WeixinJSBridge.log(res.errMsg);
+		  if(res.errMsg == "get_brand_wcpay_request:ok" ){
+		  // 使用以上方式判断前端返回,微信团队郑重提示：
+				//res.err_msg将在用户支付成功后返回ok，但并不保证它绝对可靠。
+		  } 
+	   }); 
+	   
+	}
+	if (typeof WeixinJSBridge == "undefined"){
+		   if( document.addEventListener ){
+			   document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+		   }else if (document.attachEvent){
+			   document.attachEvent('WeixinJSBridgeReady', onBridgeReady); 
+			   document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+		   }
+		}else{
+		alert(2);
+		   onBridgeReady();
+		}
+</script>

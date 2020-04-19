@@ -1,0 +1,60 @@
+{extend name="base" /}
+{block name="content"}
+
+<style>
+    .layui-badge{
+        min-width: 50px;
+    }
+</style>
+<div id="condition"></div>
+<table id="transfersTable" lay-filter="transfersTable"></table>
+
+<script>
+    layui.extend({selectC: '{/}/static/lib/plugin/select-c/selectC'});
+    layui.use(['table','form','layer','selectC'], function(){
+        let table = layui.table,
+            form = layui.form,
+            layer = layui.layer,
+            selectC = layui.selectC,
+            $ = layui.$;
+
+        //渲染用户表格
+        table.render({
+            elem: '#transfersTable',
+            cols: [[
+                {field: 'id', title: 'ID',align: 'center',width: 80},
+                {field: 'transfers_order_code', title: '提现订单号',align: 'center',width: 200},
+                {field: 'user_id', title: '会员ID',align: 'center',width: 80},
+                {field: 'user_code', title: '会员编码',align: 'center',width: 200},
+                {field: 'amount', title: '提现金额',align: 'center',width: 80},
+                {field: 'payment_no', title: '微信支付单号',align: 'center',width: 300},
+                {field: 'payment_time', title: '支付时间'},
+            ]],
+            page: true,
+            id: 'transfersTable',
+            url: '{:url("admin/transfers/get")}'
+        });
+
+        //渲染搜索框
+        let condition  = selectC({
+            elem: "#condition",
+            number: 1,
+            options: [{ //select下拉选项
+                type: "input",//input
+                name: "user_id",//标签的name属性
+                elemName: "会员ID"//名称
+            }],
+            search: function(data){
+                //执行重载表格
+                console.log(data);
+                table.reload('transfersTable', {
+                    page: {
+                        curr: 1
+                    }
+                    ,where: data
+                });
+            }
+        });
+    });
+</script>
+{/block}

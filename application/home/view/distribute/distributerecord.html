@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+	<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		
+		<meta name="viewport" content="width=device-width, height=device-height,user-scalable=no, initial-scale=1.0" />
+		<title></title>
+		{load href="/static/css/weweb.min.css" /}
+    	{load href="/static/css/app.css" /}
+    	{load href="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js" /}
+	</head>
+	<style type="text/css">
+		.divcc{
+			    width: 100%;
+    			padding: 2%;
+   				 box-sizing: border-box;
+    			text-align: center;
+		}
+	</style>
+	<body>
+		<div class="head">
+			<div class="jshook-ws-head" style="display: flex; background-color: #fa922f;color: #fff;">
+				<div class="head-back jshook-ws-head-back" style="display: none;">
+					
+				</div>
+				<div class="head-home jshook-ws-head-home" onclick="onclickset()" style="display: flex;font-size: 14px;">
+					<div class="cuIcon-back cuIcon-back">
+						
+					</div>返回
+				</div>
+				<h3 class="head-title jshook-ws-head-title" style="color: black;">
+    <i class="head-title-loading" style="display: none;"></i>
+    <span style="color: #fff;font-size: 16px;width: 100%;font-weight: 100;">我的佣金</span>
+  </h3>
+				<div class="head-option jshook-ws-head-option"></div>
+			</div>
+		</div>
+		<div class="scrollable" style="bottom: 56px; top: 42px;">
+			<div id="weweb-view-4" view-id="4" style="height: 100%;">
+				<wx-page>
+					<wx-view>
+						<wx-cu-custom>
+							<wx-view></wx-view>
+						</wx-cu-custom>
+						<wx-view class="padding-sm bg-kxly flex flex-direction align-center">
+							<wx-view class="solid-top flex justify-around margin-top padding text-lg" style="width:100%;">
+								<wx-view  class="text-center flex flex-direction justify-between onclicksetdis" >
+									<wx-view class="text-xxl">获得佣金</wx-view>
+									<wx-view class="margin-top-xs text-white text-sm objc_price text-price" id="allamount">0</wx-view>
+								</wx-view>
+								<wx-view  class="text-center flex flex-direction justify-between onclicksetdis">
+									<wx-view class="text-xxl ">已提现</wx-view>
+									<wx-view class="margin-top-xs text-white text-sm obj_price text-price" id="transfersamount">0</wx-view>
+								</wx-view>
+								<wx-view  class="text-center flex flex-direction justify-between onclicksetdis">
+									<wx-view class="text-xxl ">可提现</wx-view>
+									<wx-view class="margin-top-xs text-white text-sm obj_price text-price" id="allamount_transfersamount">0</wx-view>
+								</wx-view>
+							</wx-view>
+						</wx-view>
+						<view class="cu-bar bg-white solid-bottom">
+					      <view class="action">
+					        <text class="cuIcon-title text-blue"></text>佣金明细</view>
+					    </view>
+					  </view>
+  						<view class="padding-xs"></view>
+  						<div  style="display: block;" id="order_set">
+					    
+					  </div>
+					  <view class="bg-gray text-center cu-bar foot">
+      						<view class="w-100 text-center">佣金提现</view>
+    					</view>
+					</wx-page>
+				</div>
+			</div>	
+	</body>
+</html>
+<script type="text/javascript">
+	window.onload=function(){
+		parent.$('#loads').hide();
+	}
+	
+	function onclickset(){
+		parent.onclickset();
+	}
+	getDistributeRecord();
+	function getDistributeRecord(){
+
+		
+		$.post('/api/distribute/getDistributeRecord',{user_id:parent.user_id},function(res){
+			if(res.data){
+				var htmlc;
+				for (var i=0;i<res.data.length;i++) {
+					var pay_type='扫码支付';
+					if(res.data[i].pay_type=='orderpay'){
+						pay_type='订单支付'
+					}
+					var order_record='<block style="display: block;width: 96%;padding: 2%;background: #fff;"><view class="bg-white margin-bottom-sm margin-lr-sm radius"><view class="bg-cyan padding-sm flex justify-between"><view>订单号: '+res.data[i].order_code+'</view><view><text class="cuIcon-moneybagfill margin-right-sm"></text>'+res.data[i].get_amount+'</view></view><view class="padding"><view class="flex justify-between"><view>支付方式: '+pay_type+'</view><view class="text-red">订单金额: '+res.data[i].amount+'</view></view><view class="flex justify-between"><view>佣金比例: '+res.data[i].percent+'‰</view><view>说明:'+res.data[i].desc+'</view></view></view><view class="text-gray padding-sm text-right">交易时间: '+res.data[i].create_time+'</view></view></block>	'
+					if(!htmlc){
+						htmlc=order_record;
+					}else{
+						htmlc+=order_record;
+					}
+				}
+				$('#order_set').append(htmlc);
+			}else{
+				$('#order_set').append('<div class="divcc"><view class="padding-tb-xl text-gray text-center">您还没有获得佣金...</view></div>');	
+			}
+		})
+	}
+	getAllAmountAndTransferAmountByUserId();
+	function getAllAmountAndTransferAmountByUserId(){
+		$.post('/api/distribute/getAllAmountAndTransferAmountByUserId',{user_id:parent.user_id},function(res){
+			if(res.data){
+				$('#allamount').text(res.data.all_amount);
+				$('#transferamount').text(res.data.transfer_amount);
+				$('#allamount_transferamount').text((res.data.all_amount-res.data.transfer_amount));
+			}
+		})
+	}
+</script>

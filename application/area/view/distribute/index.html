@@ -1,0 +1,34 @@
+{extend name="base" /}
+{block name="content"}
+<table id="areaDistributeTable" lay-filter="areaDistributeTable"></table>
+<script id="payType" type="text/html">
+    {{#  if(d.pay_type == 'wxscan'){ }}
+    <span class="layui-badge layui-bg-blue">扫码支付</span>
+    {{#  } else if(d.pay_type == 'orderpay'){ }}
+    <span class="layui-badge layui-bg-green">订单支付</span>
+    {{#  } }}
+</script>
+<script>
+    layui.use('table', function(){
+        let table = layui.table,
+            form = layui.form,
+            layer = layui.layer,
+            $ = layui.$;
+        let tableIns = table.render({
+            elem: '#areaDistributeTable',
+            cols: [[
+                {field: 'id', title: "ID"},
+                {field: 'order_code',title: '订单号'},
+                {field: 'store',title: '店铺',templet: "<div>{{d.store.name}}</div>"},
+                {field: 'pay_type',title: '订单类型',templet: "#payType"},
+                {field: 'amount',title: '订单金额'},
+                {field: 'percent',title: '比例（‰）'},
+                {field: 'get_amount', title: '获得佣金'},
+                {field: 'create_time',title: '创建时间'},
+            ]],
+            page: true,
+            url: '{:url("area/distribute/get")}'
+        });
+    });
+</script>
+{/block}
