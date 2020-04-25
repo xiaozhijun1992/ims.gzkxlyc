@@ -1,7 +1,9 @@
 {extend name="base" /}
 {block name="content"}
+{load href="//res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js" /}
 <xblock>
     <button class="layui-btn" onclick="x_admin_show('添加商品','{:url("store/good/add")}')"><i class="layui-icon"></i>添加商品</button>
+	<button class="layui-btn" id="user_name"><i class="layui-icon"></i>添加营业员管理</button>
 </xblock>
 <table id="goodTable" lay-filter="goodTable"></table>
 <!-- 操作栏 -->
@@ -11,7 +13,7 @@
     <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="pullOff">下架</a>
     {{#  } }}
     {{#  if(d.status === '已下架'){ }}
-    <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="pullOn">上架</a>
+    <!--<a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="pullOn">上架</a>-->
     {{#  } }}
     {{#  if(d.status !== '审核中'){ }}
     <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
@@ -27,6 +29,54 @@
 </script>
 
 <script>
+// 店主选择
+layui.extend({'tableSelect': '{/}/static/lib/plugin/table-select/table-select'});
+    layui.use('tableSelect', function(){
+            layer = layui.layer;
+        let tableSelect = layui.tableSelect;
+        tableSelect.render({
+            elem: '#user_name',
+            checkedKey: 'id',
+            searchKey: 'phone',
+            searchPlaceholder: '手机号搜索',
+            table: {	//定义表格参数，与LAYUI的TABLE模块一致，只是无需再定义表格elem
+                url:'{:url("store/team/getUser")}',
+                cols: [[
+                    {type: 'radio' },
+                    {field: 'id', title: '用户ID'},
+                    {field: 'code', title: '用户代码'},
+                    {field: 'real_name',title: '真实姓名'},
+                    {field: 'nick_name',title: '昵称'},
+                    {field: 'phone',title: '手机号'},
+                ]]
+            },
+            done: function (elem, data) {
+            	layer.confirm('添加完成后,该员工可以登录当前店铺', function(index){
+            		
+            		$.ajax({
+                        type: 'POST',
+                        data: {id: data.data[0].id},
+                        url: '{:url("store/good/user_song")}',
+                        success: function(res){
+                            if(res.code === 0) {
+                                table.reload("good");
+                            }else {
+                                layer.alert(res.message);
+                            }
+                        },
+                        error: function(){
+                            layer.alert("请求失败！");
+                        },
+                        complete: function(){
+                            layer.close(index);
+                        }
+                    });
+            	})
+                $("#user_id").val(data.data[0].id);
+                $("#user_name").val(data.data[0].nick_name);
+            }
+        });
+    });
     layui.use('table', function(){
         let table = layui.table,
             form = layui.form,
@@ -96,27 +146,28 @@
 
                 });
             }else if(layEvent === 'pullOn'){ //删除
-                layer.confirm('确定要上架该商品吗？', function(index){
-                    $.ajax({
-                        type: 'POST',
-                        data: {id: obj.data.id},
-                        url: '{:url("store/good/pullOn")}',
-                        success: function(res){
-                            if(res.code === 0) {
-                                table.reload("good");
-                            }else {
-                                layer.alert(res.message);
-                            }
-                        },
-                        error: function(){
-                            layer.alert("请求失败！");
-                        },
-                        complete: function(){
-                            layer.close(index);
-                        }
-                    });
+            	return false;
+//              layer.confirm('确定要上架该商品吗？', function(index){
+//                  $.ajax({
+//                      type: 'POST',
+//                      data: {id: obj.data.id},
+//                      url: '{:url("store/good/pullOn")}',
+//                      success: function(res){
+//                          if(res.code === 0) {
+//                              table.reload("good");
+//                          }else {
+//                              layer.alert(res.message);
+//                          }
+//                      },
+//                      error: function(){
+//                          layer.alert("请求失败！");
+//                      },
+//                      complete: function(){
+//                          layer.close(index);
+//                      }
+//                  });
 
-                });
+//              });
             }else if(layEvent === 'edit'){ //删除
                 x_admin_show('编辑商品','{:url("store/good/edit")}?id='+obj.data.id);
             }else if(layEvent === 'remark'){ //删除

@@ -30,6 +30,7 @@ class Good extends StoreBase
 {
     public function index(){
         $this->assign("nav_list",["店铺首页","我的店铺","商品管理"]);
+        $this->assign("state",newWeiXinState());
         return $this->fetch();
     }
 
@@ -91,7 +92,7 @@ class Good extends StoreBase
                     "detail" => array_key_exists("editorValue",$data) ? $data["editorValue"] : null,
                     "maxbuy" => array_key_exists("maxbuy",$data) ? $data["maxbuy"] : null,
                     "minbuy" => array_key_exists("minbuy",$data) ? $data["minbuy"] : null,
-                    "status" => 0,
+                    "status" => 1,
                     "store_id" => Session::get("store_info.id")
                 ];
                 $validateGood = new \app\common\validate\Good();
@@ -297,6 +298,7 @@ class Good extends StoreBase
 
                 // 用于保存所有规格项名称，用于计算MD5匹配
                 $specItemList = [];
+				
                 if(array_key_exists("spec_title",$data)){
                     foreach ($data["spec_title"] as $title){
                         $data_spec = [
@@ -315,8 +317,10 @@ class Good extends StoreBase
                                     "title" => $itemTitle,
                                     "good_id" => $good_id
                                 ];
+								
                                 array_push($specItemList,$itemTitle);
                                 $goodSpecItem = new GoodSpecItem();
+								
                                 $goodSpecItem->save($dataSpecItem);
                                 $goodOption[$itemTitle] = $goodSpecItem->id;
                             }
@@ -339,7 +343,9 @@ class Good extends StoreBase
                         for($t=0;$t < count($specItemList);$t++){
                             if(md5($specItemList[$t]) == $keyArr[$i]){
                                 $title .= $specItemList[$t] . '+';
+                                
                                 $specs .= $goodOption[$specItemList[$t]] . '_';
+								
                                 break;
                             }
                         }
@@ -355,7 +361,7 @@ class Good extends StoreBase
                         "productprice" => $value["productprice"],
                         "costprice" => $value["costprice"]
                     ];
-
+					
                     $goodOptionM = new GoodOption();
                     $goodOptionM->save($dataParam);
                 }
@@ -580,5 +586,30 @@ class Good extends StoreBase
             }
         }
     }
+	public function user_song(){
+		if(Request::isPost() && Request::has("id")){
+            $user_id = Request::param("id");
+			if($user_id){
+				$user = \app\common\model\User::get($user_id);
+				if($user){
+					if(!$user->user_song && !$user->user_song_store){
+						$user->user_song_store=Session::get("store_info.id");
+						$user->user_song=Session::get("uid");
+						if($user->save()){
+                            return result([],0,'操作成功');
+                        }else {
+                            return result([],1,"操作失败");
+                        }
+					}else{
+						return result([],1,"该员工已经绑定其他店铺了",0);
+					}
+				}else{
+					return result([],1,"操作失败，无法查询到该员工",0);
+				}
+			}else{
+				return result([],1,"操作失败，无法查询到该员工",0);
+			}
+        }
+	}
 
 }

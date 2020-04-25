@@ -54,7 +54,7 @@
         let goodTableIns = table.render({
             elem: '#goodTable',
             cols: [[
-                {field: 'id', title: "商品ID",width: 80},
+                {field: 'id', hide: true},
                 {field: 'store', title: "店铺名称",templet: '<div>{{d.store.name}}</div>',align: 'center',width: 200},
                 {field: 'store_id', title: "店铺ID",align: 'center',width: 120},
                 {field: 'order', title: '排序',align: 'center',width: 80},
